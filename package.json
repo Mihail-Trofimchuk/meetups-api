@@ -72,7 +72,8 @@
     ],
     "moduleNameMapper": {
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
-      "^@app/interfaces(|/.*)$": "<rootDir>/libs/interfaces/src/$1"
+      "^@app/interfaces(|/.*)$": "<rootDir>/libs/interfaces/src/$1",
+      "^@app/db(|/.*)$": "<rootDir>/libs/db/src/$1"
     }
   }
 }
