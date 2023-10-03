@@ -1,13 +1,19 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { AccountRegister } from '@app/contracts';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { RpcException } from '@nestjs/microservices';
 import { compare, genSalt, hash } from 'bcryptjs';
+import { UserRepository } from '../user/user.repository';
 import {
   USER_ALREADY_EXISTS,
   USER_NOT_FOUND_ERROR,
   WRONG_PASSWORD_ERROR,
 } from './auth.constants';
-import { AccountRegister } from '@app/contracts';
-import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +32,7 @@ export class AuthService {
     const oldUser = await this.userRepository.findUser(registerDto.email);
 
     if (oldUser) {
-      throw new Error(USER_ALREADY_EXISTS);
+      throw new RpcException(new ConflictException(USER_ALREADY_EXISTS));
     }
 
     const salt = await genSalt(10);
@@ -44,12 +50,12 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     const user = await this.userRepository.findUser(email);
     if (!user) {
-      throw new UnauthorizedException(USER_NOT_FOUND_ERROR);
+      throw new RpcException(new NotFoundException(USER_NOT_FOUND_ERROR));
     }
 
     const isCorrectPassword = await compare(password, user.passwordHash);
     if (!isCorrectPassword) {
-      throw new UnauthorizedException(WRONG_PASSWORD_ERROR);
+      throw new RpcException(new UnauthorizedException(WRONG_PASSWORD_ERROR));
     }
 
     return { id: user.id, email: user.email, role: user.role };

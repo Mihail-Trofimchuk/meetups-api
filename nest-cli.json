@@ -54,6 +54,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/api/tsconfig.app.json"
       }
+    },
+    "meetup": {
+      "type": "application",
+      "root": "apps/meetup",
+      "entryFile": "main",
+      "sourceRoot": "apps/meetup/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/meetup/tsconfig.app.json"
+      }
     }
   }
 }

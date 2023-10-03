@@ -1,33 +1,27 @@
-import { Body, Controller } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-
-import { RMQRoute, RMQValidate } from 'nestjs-rmq';
+import { Controller } from '@nestjs/common';
 
 import { AccountLogin, AccountRegister } from '@app/contracts';
 
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 
 @Controller()
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private conf: ConfigService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @RMQValidate()
-  @RMQRoute(AccountRegister.topic)
+  @MessagePattern({ cmd: AccountRegister.topic })
   async register(
-    @Body() registerDto: AccountRegister.Request,
+    @Payload() registerDto: AccountRegister.Request,
   ): Promise<AccountRegister.Response> {
     return this.authService.register(registerDto);
   }
 
-  @RMQValidate()
-  @RMQRoute(AccountLogin.topic)
+  @MessagePattern({ cmd: AccountLogin.topic })
   async login(
-    @Body() { email, password }: AccountLogin.Request,
+    @Payload() { email, password }: AccountLogin.Request,
   ): Promise<AccountLogin.Response> {
     const { id } = await this.authService.validateUser(email, password);
+
     return this.authService.login(String(id));
   }
 }
