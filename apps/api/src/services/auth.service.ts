@@ -2,6 +2,7 @@ import { AccountLogin, AccountRegister } from '@app/contracts';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError } from 'rxjs';
+import { Response } from 'express';
 
 const handleRpcError = (error) => {
   throw new RpcException(error.response);
@@ -19,9 +20,12 @@ export class AuthService {
       .pipe(catchError(handleRpcError));
   }
 
-  login(dto: AccountLogin.Request) {
-    return this.client
+  async login(dto: AccountLogin.Request, res: Response) {
+    const access_token = await this.client
       .send({ cmd: AccountLogin.topic }, dto)
-      .pipe(catchError(handleRpcError));
+      .pipe(catchError(handleRpcError))
+      .toPromise();
+    res.cookie('access_token', access_token);
+    return access_token;
   }
 }

@@ -26,7 +26,6 @@ export class MeetupRepository {
     id: number,
     updateDto: MeetupUpdate.Request,
   ): Promise<MeetupUpdate.Response> {
-    console.log(id);
     return await this.dbService.meetup.update({
       where: { id: id },
       data: updateDto,

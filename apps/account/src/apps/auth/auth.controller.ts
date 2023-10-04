@@ -18,10 +18,9 @@ export class AuthController {
 
   @MessagePattern({ cmd: AccountLogin.topic })
   async login(
-    @Payload() { email, password }: AccountLogin.Request,
-  ): Promise<AccountLogin.Response> {
-    const { id } = await this.authService.validateUser(email, password);
-
-    return this.authService.login(String(id));
+    @Payload()
+    dto: AccountLogin.Request,
+  ) {
+    return this.authService.login(dto);
   }
 }
