@@ -1,10 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
 import {
   MeetupCreate,
   MeetupDelete,
   MeetupSearch,
   MeetupUpdate,
 } from '@app/contracts';
+import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError } from 'rxjs';
 

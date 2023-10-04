@@ -1,4 +1,4 @@
-import { AccountRegister } from '@app/contracts';
+import { AccountLogin, AccountRegister } from '@app/contracts';
 import {
   ConflictException,
   Injectable,
@@ -22,8 +22,15 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(id: string) {
-    return { access_token: await this.jwtService.signAsync({ id }) };
+  async login(dto: AccountLogin.Request) {
+    const { email, password } = dto;
+    const { id } = await this.validateUser(email, password);
+    return {
+      access_token: await this.jwtService.signAsync(
+        { id },
+        { expiresIn: '30s' },
+      ),
+    };
   }
 
   async register(

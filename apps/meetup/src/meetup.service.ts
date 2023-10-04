@@ -29,7 +29,6 @@ export class MeetupService {
   }
 
   async updateMeetup(id: number, meetupUpdate: MeetupUpdate.Request) {
-    console.log(id);
     return await this.meetupRepository.update(id, meetupUpdate);
   }
 

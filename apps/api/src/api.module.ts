@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './controllers/auth.controller';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { getJWTConfig } from 'apps/account/src/config/jwt.config';
-import { PassportModule } from '@nestjs/passport';
-import { UserController } from './controllers/user.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AuthService } from './services/auth.service';
+import { PassportModule } from '@nestjs/passport';
+import { getJWTConfig } from 'apps/account/src/config/jwt.config';
+import { AuthController } from './controllers/auth.controller';
 import { MeetupController } from './controllers/meetup.controller';
+import { UserController } from './controllers/user.controller';
+import { AuthService } from './services/auth.service';
 import { MeetupService } from './services/meetup.service';
+import { JwtAuthStrategy } from './strategy/jwt.strategy';
 
 @Module({
   imports: [
@@ -41,6 +42,6 @@ import { MeetupService } from './services/meetup.service';
     ]),
   ],
   controllers: [AuthController, MeetupController, UserController],
-  providers: [AuthService, MeetupService],
+  providers: [AuthService, MeetupService, JwtAuthStrategy],
 })
 export class ApiModule {}
