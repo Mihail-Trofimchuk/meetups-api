@@ -1,7 +1,9 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { MeetupRepository } from './meetup.repository';
-import { MeetupCreate, MeetupDelete, MeetupUpdate } from '@app/contracts';
 import { RpcException } from '@nestjs/microservices';
+
+import { MeetupCreate, MeetupDelete, MeetupUpdate } from '@app/contracts';
+
+import { MeetupRepository } from './meetup.repository';
 import { MEETUP_ALREADY_EXISTS } from './meetups.constants';
 
 @Injectable()

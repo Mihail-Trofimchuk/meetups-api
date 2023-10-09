@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { AccountModule } from './account.module';
 import { ValidationPipe } from '@nestjs/common';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+
+import { AccountModule } from './account.module';
 import { ExceptionFilter } from './filters/rpc.exeptions';
 
 async function bootstrap() {

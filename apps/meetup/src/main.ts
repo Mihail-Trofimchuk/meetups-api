@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { MeetupModule } from './meetup.module';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+
+import { MeetupModule } from './meetup.module';
 import { ExceptionFilter } from './filters/rpc.exception';
 
 async function bootstrap() {

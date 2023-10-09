@@ -7,13 +7,13 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
-import { MeetupService } from '../services/meetup.service';
+
 import { MeetupCreate, MeetupUpdate } from '@app/contracts';
+
+import { MeetupService } from '../services/meetup.service';
 import { JwtAuthGuard } from '../guards/jwt.guard';
-import { Request } from 'express';
 
 @Controller('meetup')
 export class MeetupController {
@@ -27,8 +27,7 @@ export class MeetupController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAllMeetups(@Req() req: Request) {
-    console.log(req.cookies);
+  async findAllMeetups() {
     return this.meetupService.findAllMeetups();
   }
 

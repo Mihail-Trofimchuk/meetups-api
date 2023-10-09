@@ -1,4 +1,3 @@
-import { AccountLogin, AccountRegister } from '@app/contracts';
 import {
   ConflictException,
   Injectable,
@@ -7,9 +6,16 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { RpcException } from '@nestjs/microservices';
+
+import { User } from '@prisma/client';
 import { compare, genSalt, hash } from 'bcryptjs';
+
+import { GooglePayload } from '@app/interfaces';
+import { AccountLogin, AccountRegister } from '@app/contracts';
+
 import { UserRepository } from '../user/user.repository';
 import {
+  GOOGLE_AUTH_ERROR,
   USER_ALREADY_EXISTS,
   USER_NOT_FOUND_ERROR,
   WRONG_PASSWORD_ERROR,
@@ -31,6 +37,28 @@ export class AuthService {
         { expiresIn: '30s' },
       ),
     };
+  }
+
+  async googleLogin(dto: GooglePayload) {
+    if (!dto?.email) {
+      throw new RpcException(new ConflictException(GOOGLE_AUTH_ERROR));
+    }
+    const { email } = dto;
+
+    let user: User | null = await this.userRepository.findUser(email);
+    if (!user) {
+      user = await this.userRepository.createGoogleAccount(dto);
+    }
+
+    const access_token = await this.jwtService.signAsync({ id: user.id });
+    return {
+      access_token: access_token,
+    };
+  }
+
+  async findUser(dto: GooglePayload) {
+    const user = await this.userRepository.findUserById(dto.id);
+    return user;
   }
 
   async register(

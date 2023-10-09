@@ -1,8 +1,14 @@
 import { Controller } from '@nestjs/common';
-
-import { AccountLogin, AccountRegister } from '@app/contracts';
-
 import { MessagePattern, Payload } from '@nestjs/microservices';
+
+import {
+  AccountGoogleAuth,
+  AccountLogin,
+  AccountRegister,
+  AccountSerializer,
+} from '@app/contracts';
+import { GooglePayload } from '@app/interfaces';
+
 import { AuthService } from './auth.service';
 
 @Controller()
@@ -22,5 +28,21 @@ export class AuthController {
     dto: AccountLogin.Request,
   ) {
     return this.authService.login(dto);
+  }
+
+  @MessagePattern({ cmd: AccountGoogleAuth.topic })
+  async googleLogin(
+    @Payload()
+    dto: GooglePayload,
+  ) {
+    return this.authService.googleLogin(dto);
+  }
+
+  @MessagePattern({ cmd: AccountSerializer.topic })
+  async serialize(
+    @Payload()
+    dto: GooglePayload,
+  ) {
+    return this.authService.findUser(dto);
   }
 }

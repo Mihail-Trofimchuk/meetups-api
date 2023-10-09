@@ -1,6 +1,7 @@
+import { Injectable } from '@nestjs/common';
+
 import { MeetupCreate, MeetupUpdate } from '@app/contracts';
 import { DbService } from '@app/db';
-import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class MeetupRepository {
@@ -27,12 +28,12 @@ export class MeetupRepository {
     updateDto: MeetupUpdate.Request,
   ): Promise<MeetupUpdate.Response> {
     return await this.dbService.meetup.update({
-      where: { id: id },
+      where: { id },
       data: updateDto,
     });
   }
 
   public async remove(id: number) {
-    return await this.dbService.meetup.delete({ where: { id: id } });
+    return await this.dbService.meetup.delete({ where: { id } });
   }
 }

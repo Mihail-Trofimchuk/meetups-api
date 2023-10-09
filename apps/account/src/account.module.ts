@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { UserModule } from './apps/user/user.module';
 import { AuthModule } from './apps/auth/auth.module';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { FilesModule } from './apps/files/files.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         },
       },
     ]),
+    FilesModule,
   ],
   controllers: [],
   providers: [],

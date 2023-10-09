@@ -1,11 +1,13 @@
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+
 import {
   MeetupCreate,
   MeetupDelete,
   MeetupSearch,
   MeetupUpdate,
 } from '@app/contracts';
-import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+
 import { MeetupService } from './meetup.service';
 
 @Controller()
