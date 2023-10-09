@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PassportModule } from '@nestjs/passport';
@@ -14,12 +14,20 @@ import { JwtAuthStrategy } from './strategy/jwt.strategy';
 import { GoogleAuthStrategy } from './strategy/google.strategy';
 import { SessionSerializer } from './utils/serializer';
 import { UserService } from './services/user.service';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: 'envs/.api.env', isGlobal: true }),
     JwtModule.registerAsync(getJWTConfig()),
     PassportModule,
+    MulterModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        dest: configService.get<string>('MULTER_DEST'),
+      }),
+      inject: [ConfigService],
+    }),
     ClientsModule.register([
       {
         name: 'ACCOUNT_SERVICE',

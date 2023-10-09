@@ -3,7 +3,9 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
+  ParseFilePipeBuilder,
   ParseIntPipe,
   Patch,
   Post,
@@ -13,51 +15,32 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-import { diskStorage } from 'multer';
-import path = require('path');
-import { v4 as uuidv4 } from 'uuid';
 import { Response } from 'express';
 
 import { UserService } from '../services/user.service';
 import { UserUpdate } from '@app/contracts';
 
-export const storage = {
-  storage: diskStorage({
-    destination: './uploads/profileimages',
-    filename: (req, file, cb) => {
-      const filename: string =
-        path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
-      const extension: string = path.parse(file.originalname).ext;
-
-      cb(null, `${filename}${extension}`);
-    },
-  }),
-};
-
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @Post('upload/:id')
-  // @UseInterceptors(FileInterceptor('file', storage))
-  // uploadFile(
-  //   @UploadedFile() file: Express.Multer.File,
-  //   @Param('id', ParseIntPipe) id: number,
-  // ) {
-  //   return this.userService.uploadFile(file, id);
-  // }
-
   @Post('avatar/:id')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploadedFiles/avatars',
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file'))
   async addAvatar(
     @Param('id', ParseIntPipe) id: number,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: '.(png|jpeg|jpg)',
+        })
+        .addMaxSizeValidator({
+          maxSize: 5 * 1024 * 1024,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
+    )
+    file: Express.Multer.File,
   ) {
     return this.userService.addAvatar(id, {
       path: file.path,

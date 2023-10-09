@@ -1,4 +1,9 @@
-import { Inject, Injectable, StreamableFile } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  StreamableFile,
+} from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 
 import { catchError } from 'rxjs';
@@ -13,6 +18,7 @@ import {
   UserUploadFile,
 } from '@app/contracts';
 import { LocalFileData } from '@app/interfaces';
+import { FILE_NOT_FOUND_ERROR } from '../constants/user.constants';
 
 const handleRpcError = (error) => {
   throw new RpcException(error.response);
@@ -35,7 +41,10 @@ export class UserService {
       UserSearch.findOneTopic,
       id,
     ).toPromise();
-    return user;
+    //return user;
+    if (user.userFile === null) {
+      throw new NotFoundException(FILE_NOT_FOUND_ERROR);
+    }
     const stream = createReadStream(join(process.cwd(), user.userFile.path));
 
     response.set({
