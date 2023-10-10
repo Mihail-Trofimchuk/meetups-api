@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 
 import { AccountLogin, AccountRegister } from '@app/contracts';
-import { GooglePayload, RequestWithUser } from '@app/interfaces';
+import { GooglePayload, IRequestWithUser } from '@app/interfaces';
 
 import { Response } from 'express';
 
@@ -63,7 +63,7 @@ export class AuthController {
 
   @Post('resend-confirmation-link')
   @UseGuards(JwtAuthGuard)
-  async resendConfirmationLink(@Req() request: RequestWithUser) {
+  async resendConfirmationLink(@Req() request: IRequestWithUser) {
     await this.emailConfirmationService.resendConfirmationLink(request.user.id);
   }
 }

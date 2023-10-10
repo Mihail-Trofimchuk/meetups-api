@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
@@ -15,6 +16,7 @@ import { MeetupCreate, MeetupUpdate } from '@app/contracts';
 import { MeetupService } from '../services/meetup.service';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { EmailConfirmationGuard } from '../guards/emailConfirmation.guard';
+import { MeetupFilterDto } from '../dtos/meetups-filter.dto';
 
 @Controller('meetup')
 export class MeetupController {
@@ -44,5 +46,11 @@ export class MeetupController {
   @Delete(':id')
   async deleteMeetup(@Param('id') id: string) {
     return this.meetupService.deleteMeetup(Number(id));
+  }
+
+  @Get('filter')
+  async getMeetups(@Query() filterDto: MeetupFilterDto) {
+    //console.log(latitude);
+    return this.meetupService.findMeetupsInRadius(filterDto);
   }
 }

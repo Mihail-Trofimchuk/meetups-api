@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 
 import { catchError } from 'rxjs';
+import * as geolib from 'geolib';
 
 import {
   MeetupCreate,
@@ -9,10 +10,21 @@ import {
   MeetupSearch,
   MeetupUpdate,
 } from '@app/contracts';
+import { MeetupFilterDto } from '../dtos/meetups-filter.dto';
+import { CONVERT_TO_KM } from '../constants/meetup.constants';
 
 const handleRpcError = (error) => {
   throw new RpcException(error.response);
 };
+
+function isMeetupInRadius(meetup, center, radius: number) {
+  const meetupCoords = {
+    latitude: meetup.latitude,
+    longitude: meetup.longitude,
+  };
+  const distance = geolib.getDistance(center, meetupCoords);
+  return distance <= radius * CONVERT_TO_KM;
+}
 
 @Injectable()
 export class MeetupService {
@@ -38,5 +50,22 @@ export class MeetupService {
 
   async deleteMeetup(id: number) {
     return this.sendRCPRequest(MeetupDelete.topic, { id });
+  }
+
+  async findMeetupsInRadius(filterDto: MeetupFilterDto) {
+    const { latitude, longitude, radius } = filterDto;
+
+    const meetups = await this.sendRCPRequest(
+      MeetupSearch.findAllMeetupsTopic,
+      {},
+    ).toPromise();
+
+    if (!latitude || !longitude || !radius) {
+      return meetups;
+    }
+
+    const center = { latitude, longitude };
+
+    return meetups.filter((meetup) => isMeetupInRadius(meetup, center, radius));
   }
 }
