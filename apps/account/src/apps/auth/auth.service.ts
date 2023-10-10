@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -30,10 +31,10 @@ export class AuthService {
 
   async login(dto: AccountLogin.Request) {
     const { email, password } = dto;
-    const { id } = await this.validateUser(email, password);
+    const { id, isEmailConfirmed } = await this.validateUser(email, password);
     return {
       access_token: await this.jwtService.signAsync(
-        { id },
+        { id, isEmailConfirmed },
         { expiresIn: '30s' },
       ),
     };
@@ -93,6 +94,21 @@ export class AuthService {
       throw new RpcException(new UnauthorizedException(WRONG_PASSWORD_ERROR));
     }
 
-    return { id: user.id, email: user.email, role: user.role };
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      isEmailConfirmed: user.isEmailConfirmed,
+    };
+  }
+
+  async confirmEmail(email: string) {
+    const user = await this.userRepository.findUserByEmail(email);
+    if (user.isEmailConfirmed) {
+      throw new RpcException(
+        new BadRequestException('Email already confirmed'),
+      );
+    }
+    return await this.userRepository.markEmailAsConfirmed(email);
   }
 }

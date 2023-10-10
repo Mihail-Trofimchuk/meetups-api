@@ -14,6 +14,7 @@ import { MeetupCreate, MeetupUpdate } from '@app/contracts';
 
 import { MeetupService } from '../services/meetup.service';
 import { JwtAuthGuard } from '../guards/jwt.guard';
+import { EmailConfirmationGuard } from '../guards/emailConfirmation.guard';
 
 @Controller('meetup')
 export class MeetupController {
@@ -25,6 +26,7 @@ export class MeetupController {
     return this.meetupService.createMeetup(createDto);
   }
 
+  @UseGuards(EmailConfirmationGuard)
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAllMeetups() {

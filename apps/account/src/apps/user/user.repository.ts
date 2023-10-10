@@ -54,6 +54,23 @@ export class UserRepository {
     });
   }
 
+  async findUserByEmail(email: string) {
+    return await this.dbService.user.findUnique({
+      where: {
+        email,
+      },
+    });
+  }
+
+  async markEmailAsConfirmed(email: string) {
+    return await this.dbService.user.update({
+      where: { email },
+      data: {
+        isEmailConfirmed: true,
+      },
+    });
+  }
+
   async deleteUser(id: number) {
     return await this.dbService.user.delete({ where: { id } });
   }

@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
 import {
+  AccountConfirmEmail,
   AccountGoogleAuth,
   AccountLogin,
   AccountRegister,
@@ -44,5 +45,13 @@ export class AuthController {
     dto: GooglePayload,
   ) {
     return this.authService.findUser(dto);
+  }
+
+  @MessagePattern({ cmd: AccountConfirmEmail.topic })
+  async confirmEmail(
+    @Payload()
+    email: string,
+  ) {
+    return await this.authService.confirmEmail(email);
   }
 }

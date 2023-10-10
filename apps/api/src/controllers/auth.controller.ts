@@ -1,17 +1,31 @@
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 
 import { AccountLogin, AccountRegister } from '@app/contracts';
-import { GooglePayload } from '@app/interfaces';
+import { GooglePayload, RequestWithUser } from '@app/interfaces';
 
 import { Response } from 'express';
 
 import { AuthService } from '../services/auth.service';
 import { GoogleAuthGuard } from '../guards/google.guard';
 import { GetGooglePayload } from '../decorators/google-payload.decorator';
+import { EmailConfirmationService } from '../services/email-confirmation.service';
+import { JwtAuthGuard } from '../guards/jwt.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly emailConfirmationService: EmailConfirmationService,
+  ) {}
 
   @Get('google/login')
   @UseGuards(GoogleAuthGuard)
@@ -38,5 +52,18 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.authService.login(dto, res);
+  }
+
+  @Get('confirm?')
+  async confirm(@Query('token') token: string) {
+    const email =
+      await this.emailConfirmationService.decodeConfirmationToken(token);
+    return this.emailConfirmationService.confirmEmail(email);
+  }
+
+  @Post('resend-confirmation-link')
+  @UseGuards(JwtAuthGuard)
+  async resendConfirmationLink(@Req() request: RequestWithUser) {
+    await this.emailConfirmationService.resendConfirmationLink(request.user.id);
   }
 }

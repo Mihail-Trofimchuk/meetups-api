@@ -15,6 +15,8 @@ import { GoogleAuthStrategy } from './strategy/google.strategy';
 import { SessionSerializer } from './utils/serializer';
 import { UserService } from './services/user.service';
 import { MulterModule } from '@nestjs/platform-express';
+import EmailService from './services/email.service';
+import { EmailConfirmationService } from './services/email-confirmation.service';
 
 @Module({
   imports: [
@@ -55,6 +57,8 @@ import { MulterModule } from '@nestjs/platform-express';
   ],
   controllers: [AuthController, MeetupController, UserController],
   providers: [
+    EmailService,
+    EmailConfirmationService,
     AuthService,
     MeetupService,
     UserService,

@@ -26,6 +26,6 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
     return null;
   }
   async validate(payload: IJWTPayload) {
-    return { id: payload.id };
+    return { id: payload.id, isEmailConfirmed: payload.isEmailConfirmed };
   }
 }

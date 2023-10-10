@@ -10,6 +10,7 @@ import {
   AccountLogin,
   AccountRegister,
 } from '@app/contracts';
+import { EmailConfirmationService } from './email-confirmation.service';
 
 const handleRpcError = (error) => {
   throw new RpcException(error.response);
@@ -19,6 +20,7 @@ const handleRpcError = (error) => {
 export class AuthService {
   constructor(
     @Inject('ACCOUNT_SERVICE') private readonly client: ClientProxy,
+    private readonly emailConfirmationService: EmailConfirmationService,
   ) {}
 
   private sendRCPRequest(command: string, data: any) {
@@ -28,7 +30,13 @@ export class AuthService {
   }
 
   async register(dto: AccountRegister.Request) {
-    return this.sendRCPRequest(AccountRegister.topic, dto);
+    const newUser = await this.sendRCPRequest(
+      AccountRegister.topic,
+      dto,
+    ).toPromise();
+
+    await this.emailConfirmationService.sendVerificationLink(dto.email);
+    return newUser;
   }
 
   async login(dto: AccountLogin.Request, res: Response) {

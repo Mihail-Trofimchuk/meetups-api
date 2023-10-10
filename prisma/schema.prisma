@@ -11,13 +11,14 @@ datasource db {
 }
 
 model User {
-  id           Int        @id @default(autoincrement())
-  email        String     @unique
-  displayName  String?    @map("display_name")
-  passwordHash String?    @map("password_hash")
-  role         Role
-  avatar       LocalFile? @relation(fields: [avatarId], references: [id])
-  avatarId     Int?       @unique @map("avatar_id")
+  id               Int        @id @default(autoincrement())
+  email            String     @unique
+  displayName      String?    @map("display_name")
+  passwordHash     String?    @map("password_hash")
+  role             Role
+  avatar           LocalFile? @relation(fields: [avatarId], references: [id])
+  avatarId         Int?       @unique @map("avatar_id")
+  isEmailConfirmed Boolean    @default(false)
 }
 
 model LocalFile {
