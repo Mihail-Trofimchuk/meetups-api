@@ -3,11 +3,18 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 
-import { catchError } from 'rxjs';
+import { catchError, firstValueFrom } from 'rxjs';
 
 import { VerificationTokenPayload } from '@app/interfaces';
-import EmailService from './email.service';
 import { AccountConfirmEmail, UserSearch } from '@app/contracts';
+import EmailService from './email.service';
+import {
+  ALREADY_CONFIRMED_ERROR,
+  BAD_TOKEN_ERROR,
+  EMAIL_EXPIRED_ERROR,
+  EMAIL_SUBJECT,
+  EMAIL_TEXT,
+} from '../constants/email.constants';
 
 const handleRpcError = (error) => {
   throw new RpcException(error.response);
@@ -34,11 +41,11 @@ export class EmailConfirmationService {
       'EMAIL_CONFIRMATION_URL',
     )}?token=${token}`;
 
-    const text = `Welcome to the application. To confirm the email address, click here: ${url}`;
+    const text = `${EMAIL_TEXT}: ${url}`;
 
     return this.emailService.sendMail({
       to: email,
-      subject: 'Email confirmation',
+      subject: EMAIL_SUBJECT,
       text,
     });
   }
@@ -61,20 +68,21 @@ export class EmailConfirmationService {
       throw new BadRequestException();
     } catch (error) {
       if (error?.name === 'TokenExpiredError') {
-        throw new BadRequestException('Email confirmation token expired');
+        throw new BadRequestException(EMAIL_EXPIRED_ERROR);
       }
-      throw new BadRequestException('Bad confirmation token');
+      throw new BadRequestException(BAD_TOKEN_ERROR);
     }
   }
 
   public async resendConfirmationLink(userId: number) {
-    const user = await this.client
-      .send({ cmd: UserSearch.findOneTopic }, userId)
-      .pipe(catchError(handleRpcError))
-      .toPromise();
+    const user = await firstValueFrom(
+      this.client
+        .send({ cmd: UserSearch.findOneTopic }, userId)
+        .pipe(catchError(handleRpcError)),
+    );
 
     if (user.user.isEmailConfirmed) {
-      throw new BadRequestException('Email already confirmed');
+      throw new BadRequestException(ALREADY_CONFIRMED_ERROR);
     }
 
     await this.sendVerificationLink(user.user.email);

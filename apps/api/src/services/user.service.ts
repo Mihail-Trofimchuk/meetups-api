@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 
-import { catchError } from 'rxjs';
+import { catchError, firstValueFrom } from 'rxjs';
 import { Response } from 'express';
 import { createReadStream } from 'fs';
 import { join } from 'path';
@@ -37,10 +37,9 @@ export class UserService {
   }
 
   async findUserById(id: number, response: Response) {
-    const user = await this.sendRCPRequest(
-      UserSearch.findOneTopic,
-      id,
-    ).toPromise();
+    const user = await firstValueFrom(
+      this.sendRCPRequest(UserSearch.findOneTopic, id),
+    );
     //return user;
     if (user.userFile === null) {
       throw new NotFoundException(FILE_NOT_FOUND_ERROR);

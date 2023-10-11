@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 
-import { catchError } from 'rxjs';
+import { catchError, firstValueFrom } from 'rxjs';
 import * as geolib from 'geolib';
 
 import {
@@ -55,10 +55,9 @@ export class MeetupService {
   async findMeetupsInRadius(filterDto: MeetupFilterDto) {
     const { latitude, longitude, radius } = filterDto;
 
-    const meetups = await this.sendRCPRequest(
-      MeetupSearch.findAllMeetupsTopic,
-      {},
-    ).toPromise();
+    const meetups = await firstValueFrom(
+      this.sendRCPRequest(MeetupSearch.findAllMeetupsTopic, {}),
+    );
 
     if (!latitude || !longitude || !radius) {
       return meetups;

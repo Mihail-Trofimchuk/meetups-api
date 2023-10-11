@@ -3,7 +3,7 @@ import { PassportSerializer } from '@nestjs/passport';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 
 import { VerifyCallback } from 'passport-jwt';
-import { catchError } from 'rxjs';
+import { catchError, firstValueFrom } from 'rxjs';
 
 import { GooglePayload } from '@app/interfaces';
 import { AccountSerializer } from '@app/contracts';
@@ -23,10 +23,12 @@ export class SessionSerializer extends PassportSerializer {
   }
 
   async deserializeUser(payload: GooglePayload, done: VerifyCallback) {
-    const user = await this.client
-      .send({ cmd: AccountSerializer.topic }, payload)
-      .pipe(catchError(handleRpcError))
-      .toPromise();
+    const user = await firstValueFrom(
+      this.client
+        .send({ cmd: AccountSerializer.topic }, payload)
+        .pipe(catchError(handleRpcError)),
+    );
+
     return user ? done(null, user) : done(null, null);
   }
 }

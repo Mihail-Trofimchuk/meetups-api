@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 
-import { catchError } from 'rxjs';
+import { catchError, firstValueFrom } from 'rxjs';
 import { Response } from 'express';
 
 import { GooglePayload } from '@app/interfaces';
@@ -30,30 +30,27 @@ export class AuthService {
   }
 
   async register(dto: AccountRegister.Request) {
-    const newUser = await this.sendRCPRequest(
-      AccountRegister.topic,
-      dto,
-    ).toPromise();
+    const newUser = await firstValueFrom(
+      this.sendRCPRequest(AccountRegister.topic, dto),
+    );
 
     await this.emailConfirmationService.sendVerificationLink(dto.email);
     return newUser;
   }
 
   async login(dto: AccountLogin.Request, res: Response) {
-    const access_token = await this.sendRCPRequest(
-      AccountLogin.topic,
-      dto,
-    ).toPromise();
+    const access_token = await firstValueFrom(
+      this.sendRCPRequest(AccountLogin.topic, dto),
+    );
 
     res.cookie('access_token', access_token);
     return access_token;
   }
 
   async googleLogin(googlePayload: GooglePayload, res: Response) {
-    const access_token = await this.sendRCPRequest(
-      AccountGoogleAuth.topic,
-      googlePayload,
-    ).toPromise();
+    const access_token = await firstValueFrom(
+      this.sendRCPRequest(AccountGoogleAuth.topic, googlePayload),
+    );
 
     res.cookie('access_token', access_token);
   }
