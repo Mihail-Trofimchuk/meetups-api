@@ -3,6 +3,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 
 import { UserService } from './user.service';
 import {
+  UserCreateOrganizer,
   UserDelete,
   UserSearch,
   UserUpdate,
@@ -31,6 +32,11 @@ export class UserController {
     return this.userService.findUserById(id);
   }
 
+  @MessagePattern({ cmd: UserSearch.findOneByEmailTopic })
+  async findUserByEmail(@Payload() email: string) {
+    return this.userService.findUserByEmail(email);
+  }
+
   @MessagePattern({ cmd: UserDelete.topic })
   async deleteUser(@Payload() id: number): Promise<UserDelete.Response> {
     return this.userService.deleteUser(id);
@@ -42,5 +48,12 @@ export class UserController {
     { id, updateUserDto }: { id: number; updateUserDto: UserUpdate.Request },
   ) {
     return await this.userService.updateUser(id, updateUserDto);
+  }
+
+  @MessagePattern({ cmd: UserCreateOrganizer.topic })
+  async createOrganizer(
+    @Payload() createOrganizerDto: UserCreateOrganizer.Request,
+  ) {
+    return await this.userService.createOrganizer(createOrganizerDto);
   }
 }

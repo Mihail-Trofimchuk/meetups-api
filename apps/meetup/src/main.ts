@@ -19,6 +19,7 @@ async function bootstrap() {
       },
     },
   );
+
   app.useGlobalFilters(new ExceptionFilter());
   app.useGlobalPipes(new ValidationPipe());
   await app.listen();

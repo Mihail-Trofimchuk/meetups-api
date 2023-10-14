@@ -1,15 +1,25 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request as RequestType } from 'express';
 
 import { IJWTPayload } from '@app/interfaces';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { catchError, firstValueFrom } from 'rxjs';
+import { UserSearch } from '@app/contracts';
+
+const handleRpcError = (error) => {
+  throw new RpcException(error.response);
+};
 
 @Injectable()
 export class JwtAuthStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject('ACCOUNT_SERVICE') private readonly client: ClientProxy,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         JwtAuthStrategy.extractJWT,
@@ -26,6 +36,11 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
     return null;
   }
   async validate(payload: IJWTPayload) {
-    return { id: payload.id, isEmailConfirmed: payload.isEmailConfirmed };
+    const user = await firstValueFrom(
+      this.client
+        .send({ cmd: UserSearch.findOneTopic }, payload.id)
+        .pipe(catchError(handleRpcError)),
+    );
+    return user;
   }
 }

@@ -47,6 +47,10 @@ export class AuthService {
     return access_token;
   }
 
+  async getCookieForLogOut(response: Response) {
+    response.cookie('access_token', '');
+  }
+
   async googleLogin(googlePayload: GooglePayload, res: Response) {
     const access_token = await firstValueFrom(
       this.sendRCPRequest(AccountGoogleAuth.topic, googlePayload),

@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
-import { $Enums } from '@prisma/client';
-
 import { AccountRegister, UserUpdate } from '@app/contracts';
 import { DbService } from '@app/db';
 import { GooglePayload, LocalFileData } from '@app/interfaces';
 import { FilesService } from '../files/files.service';
+import { $Enums } from '@prisma/client';
 
 @Injectable()
 export class UserRepository {
@@ -22,7 +21,6 @@ export class UserRepository {
       data: {
         displayName,
         email,
-        role: $Enums.Role.USER,
         passwordHash: passwordHash,
       },
     });
@@ -33,7 +31,6 @@ export class UserRepository {
       data: {
         displayName: name,
         email,
-        role: $Enums.Role.USER,
       },
     });
   }
@@ -97,6 +94,17 @@ export class UserRepository {
       data: {
         displayName: updateDto.displayName,
         passwordHash,
+      },
+    });
+  }
+
+  async createOrganizer(id: number) {
+    return this.dbService.user.update({
+      where: {
+        id,
+      },
+      data: {
+        role: $Enums.Role.ORGANIZER,
       },
     });
   }

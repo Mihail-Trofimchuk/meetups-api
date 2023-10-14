@@ -16,9 +16,16 @@ export class MeetupController {
 
   @MessagePattern({ cmd: MeetupCreate.topic })
   async createMeetup(
-    @Payload() createDto: MeetupCreate.Request,
+    @Payload()
+    {
+      createDto,
+      createdById,
+    }: {
+      createDto: MeetupCreate.Request;
+      createdById: number;
+    },
   ): Promise<MeetupCreate.Response> {
-    return this.meetupService.createMeetup(createDto);
+    return this.meetupService.createMeetup(createDto, createdById);
   }
 
   @MessagePattern({ cmd: MeetupSearch.findAllMeetupsTopic })

@@ -17,8 +17,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 import { Response } from 'express';
 
+import { UserCreateOrganizer, UserUpdate } from '@app/contracts';
 import { UserService } from '../services/user.service';
-import { UserUpdate } from '@app/contracts';
 
 @Controller('user')
 export class UserController {
@@ -73,5 +73,13 @@ export class UserController {
   @Get()
   async findAllUsers() {
     return this.userService.findAllUsers();
+  }
+
+  // @UseGuards(RoleGuard(Role.ADMIN))
+  @Post('create-organizer')
+  async createOrganizer(
+    @Body() createOrganizerDto: UserCreateOrganizer.Request,
+  ) {
+    return this.userService.createOrganizer(createOrganizerDto);
   }
 }

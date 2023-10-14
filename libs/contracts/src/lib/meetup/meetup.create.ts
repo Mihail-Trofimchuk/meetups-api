@@ -3,7 +3,7 @@ import { Decimal } from '@prisma/client/runtime/library';
 
 import { IsArray, IsDateString, IsNumber, IsString } from 'class-validator';
 
-type MeetupCreateType = Omit<Meetup, 'id'>;
+type MeetupCreateType = Omit<Meetup, 'id' | 'createdById'>;
 
 export namespace MeetupCreate {
   export const topic = 'meetup.create.command';

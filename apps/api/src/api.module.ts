@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PassportModule } from '@nestjs/passport';
+import { MulterModule } from '@nestjs/platform-express';
 
 import { getJWTConfig } from 'apps/account/src/config/jwt.config';
 import { AuthController } from './controllers/auth.controller';
@@ -14,9 +15,10 @@ import { JwtAuthStrategy } from './strategy/jwt.strategy';
 import { GoogleAuthStrategy } from './strategy/google.strategy';
 import { SessionSerializer } from './utils/serializer';
 import { UserService } from './services/user.service';
-import { MulterModule } from '@nestjs/platform-express';
 import EmailService from './services/email.service';
 import { EmailConfirmationService } from './services/email-confirmation.service';
+import { UserMeetupService } from './services/user-meetup.service';
+import { UserMeetupController } from './controllers/user-meetup.controller';
 
 @Module({
   imports: [
@@ -55,7 +57,12 @@ import { EmailConfirmationService } from './services/email-confirmation.service'
       },
     ]),
   ],
-  controllers: [AuthController, MeetupController, UserController],
+  controllers: [
+    AuthController,
+    MeetupController,
+    UserController,
+    UserMeetupController,
+  ],
   providers: [
     EmailService,
     EmailConfirmationService,
@@ -65,6 +72,7 @@ import { EmailConfirmationService } from './services/email-confirmation.service'
     JwtAuthStrategy,
     GoogleAuthStrategy,
     SessionSerializer,
+    UserMeetupService,
   ],
 })
 export class ApiModule {}

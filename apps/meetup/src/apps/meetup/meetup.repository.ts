@@ -9,9 +9,13 @@ export class MeetupRepository {
 
   public async create(
     createDto: MeetupCreate.Request,
+    createdById: number,
   ): Promise<MeetupCreate.Response> {
     return await this.dbService.meetup.create({
-      data: createDto,
+      data: {
+        ...createDto,
+        createdById: createdById,
+      },
     });
   }
 

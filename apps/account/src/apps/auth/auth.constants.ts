@@ -12,3 +12,5 @@ export const USER_ALREADY_EXISTS = 'This user already exists.';
 
 export const GOOGLE_AUTH_ERROR =
   'Something went wrong with google authorization.';
+
+export const ALRADY_CONFIRMED_ERROR = 'Email already confirmed.';

@@ -13,3 +13,7 @@ export * from './lib/user/user.upload-file';
 export * from './lib/user/user.search';
 export * from './lib/user/user.delete';
 export * from './lib/user/user.update';
+export * from './lib/user/user.create-organizer';
+
+export * from './lib/user-meetup/user-meetup.add-user';
+export * from './lib/user-meetup/user-meetup.delete-user';

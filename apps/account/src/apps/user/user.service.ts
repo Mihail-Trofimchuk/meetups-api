@@ -4,7 +4,7 @@ import { RpcException } from '@nestjs/microservices';
 import { genSalt, hash } from 'bcryptjs';
 
 import { LocalFileData } from '@app/interfaces';
-import { UserDelete, UserUpdate } from '@app/contracts';
+import { UserCreateOrganizer, UserDelete, UserUpdate } from '@app/contracts';
 import { UserRepository } from './user.repository';
 import { FilesService } from '../files/files.service';
 import { USER_NOT_FOUND_ERROR } from './user.constants';
@@ -51,9 +51,25 @@ export class UserService {
     return { user, userFile };
   }
 
+  async findUserByEmail(email: string) {
+    const user = await this.userRepository.findUserByEmail(email);
+    return user.id;
+  }
+
   async deleteUser(id: number): Promise<UserDelete.Response> {
     await this.checkUserExists(id);
 
     return await this.userRepository.deleteUser(id);
+  }
+
+  async createOrganizer(createOrganizerDto: UserCreateOrganizer.Request) {
+    const user = await this.userRepository.findUserByEmail(
+      createOrganizerDto.email,
+    );
+    if (!user) {
+      throw new RpcException(new NotFoundException(USER_NOT_FOUND_ERROR));
+    }
+
+    return await this.userRepository.createOrganizer(user.id);
   }
 }

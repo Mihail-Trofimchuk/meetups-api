@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 
 import { AccountLogin, AccountRegister } from '@app/contracts';
-import { GooglePayload, IRequestWithUser } from '@app/interfaces';
+import { GooglePayload } from '@app/interfaces';
 
 import { Response } from 'express';
 
@@ -31,7 +31,6 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   handleLogin() {}
 
-  // api/auth/google/redirect
   @Get('google/redirect')
   @UseGuards(GoogleAuthGuard)
   handleRedirect(
@@ -54,6 +53,13 @@ export class AuthController {
     return this.authService.login(dto, res);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('log-out')
+  async logOut(@Res() response: Response) {
+    this.authService.getCookieForLogOut(response);
+    return response.sendStatus(200);
+  }
+
   @Get('confirm?')
   async confirm(@Query('token') token: string) {
     const email =
@@ -63,7 +69,9 @@ export class AuthController {
 
   @Post('resend-confirmation-link')
   @UseGuards(JwtAuthGuard)
-  async resendConfirmationLink(@Req() request: IRequestWithUser) {
-    await this.emailConfirmationService.resendConfirmationLink(request.user.id);
+  async resendConfirmationLink(@Req() request) {
+    await this.emailConfirmationService.resendConfirmationLink(
+      request.user.user.id,
+    );
   }
 }

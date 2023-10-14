@@ -12,6 +12,7 @@ import { createReadStream } from 'fs';
 import { join } from 'path';
 
 import {
+  UserCreateOrganizer,
   UserDelete,
   UserSearch,
   UserUpdate,
@@ -40,7 +41,7 @@ export class UserService {
     const user = await firstValueFrom(
       this.sendRCPRequest(UserSearch.findOneTopic, id),
     );
-    //return user;
+    return user;
     if (user.userFile === null) {
       throw new NotFoundException(FILE_NOT_FOUND_ERROR);
     }
@@ -67,5 +68,9 @@ export class UserService {
 
   async updateUser(id: number, updateUserDto: UserUpdate.Request) {
     return this.sendRCPRequest(UserUpdate.topic, { id, updateUserDto });
+  }
+
+  async createOrganizer(createOrganizerDto: UserCreateOrganizer.Request) {
+    return this.sendRCPRequest(UserCreateOrganizer.topic, createOrganizerDto);
   }
 }

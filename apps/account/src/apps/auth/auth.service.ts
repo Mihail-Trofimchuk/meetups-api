@@ -16,6 +16,7 @@ import { AccountLogin, AccountRegister } from '@app/contracts';
 
 import { UserRepository } from '../user/user.repository';
 import {
+  ALRADY_CONFIRMED_ERROR,
   GOOGLE_AUTH_ERROR,
   USER_ALREADY_EXISTS,
   USER_NOT_FOUND_ERROR,
@@ -31,10 +32,10 @@ export class AuthService {
 
   async login(dto: AccountLogin.Request) {
     const { email, password } = dto;
-    const { id, isEmailConfirmed } = await this.validateUser(email, password);
+    const { id } = await this.validateUser(email, password);
     return {
       access_token: await this.jwtService.signAsync(
-        { id, isEmailConfirmed },
+        { id },
         { expiresIn: '30s' },
       ),
     };
@@ -105,9 +106,7 @@ export class AuthService {
   async confirmEmail(email: string) {
     const user = await this.userRepository.findUserByEmail(email);
     if (user.isEmailConfirmed) {
-      throw new RpcException(
-        new BadRequestException('Email already confirmed'),
-      );
+      throw new RpcException(new BadRequestException(ALRADY_CONFIRMED_ERROR));
     }
     return await this.userRepository.markEmailAsConfirmed(email);
   }

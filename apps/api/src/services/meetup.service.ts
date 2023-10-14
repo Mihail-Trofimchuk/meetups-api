@@ -12,6 +12,7 @@ import {
 } from '@app/contracts';
 import { MeetupFilterDto } from '../dtos/meetups-filter.dto';
 import { CONVERT_TO_KM } from '../constants/meetup.constants';
+import { stringify } from 'csv-stringify';
 
 const handleRpcError = (error) => {
   throw new RpcException(error.response);
@@ -36,8 +37,8 @@ export class MeetupService {
       .pipe(catchError(handleRpcError));
   }
 
-  async createMeetup(createDto: MeetupCreate.Request) {
-    return this.sendRCPRequest(MeetupCreate.topic, createDto);
+  async createMeetup(createDto: MeetupCreate.Request, createdById: number) {
+    return this.sendRCPRequest(MeetupCreate.topic, { createDto, createdById });
   }
 
   async findAllMeetups() {
@@ -66,5 +67,15 @@ export class MeetupService {
     const center = { latitude, longitude };
 
     return meetups.filter((meetup) => isMeetupInRadius(meetup, center, radius));
+  }
+
+  async generateCSV() {
+    const meetups = await firstValueFrom(
+      this.sendRCPRequest(MeetupSearch.findAllMeetupsTopic, {}),
+    );
+    console.log(meetups);
+    const output = stringify(meetups, { header: true, delimiter: ';' });
+
+    return output;
   }
 }

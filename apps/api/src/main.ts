@@ -12,8 +12,10 @@ import { RpcExceptionToHttpExceptionFilter } from './filters/rpc.exception';
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule);
   app.useGlobalFilters(new RpcExceptionToHttpExceptionFilter());
+
   const configService = app.get(ConfigService);
   const SESSION_SECRET = configService.get<string>('SESSION_SECRET');
+
   app.use(
     session({
       secret: SESSION_SECRET,
@@ -24,6 +26,7 @@ async function bootstrap() {
       },
     }),
   );
+
   app.use(passport.initialize());
   app.use(passport.session());
   app.use(cookieParser());
