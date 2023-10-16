@@ -1,4 +1,12 @@
-import { IsEmail, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export namespace UserUpdate {
   export const topic = 'user.update.command';
@@ -9,6 +17,11 @@ export namespace UserUpdate {
     displayName?: string;
 
     @IsString()
+    @MinLength(4)
+    @MaxLength(20)
+    @Matches(/(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/, {
+      message: 'password too weak',
+    })
     password: string;
   }
 

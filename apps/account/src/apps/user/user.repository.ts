@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
+import { $Enums } from '@prisma/client';
+
 import { AccountRegister, UserUpdate } from '@app/contracts';
 import { DbService } from '@app/db';
 import { GooglePayload, LocalFileData } from '@app/interfaces';
 import { FilesService } from '../files/files.service';
-import { $Enums } from '@prisma/client';
 
 @Injectable()
 export class UserRepository {

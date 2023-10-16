@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { DbService } from '@app/db';
 
@@ -8,7 +9,6 @@ import { MeetupRepository } from './apps/meetup/meetup.repository';
 import { UserMeetupService } from './apps/user-meetup/user-meetup.service';
 import { UserMeetupModule } from './apps/user-meetup/user-meetup.module';
 import { UserMeetupRepository } from './apps/user-meetup/user-meetup.repository';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [

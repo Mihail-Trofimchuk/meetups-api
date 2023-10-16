@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { ClientProxy } from '@nestjs/microservices';
 
 import { catchError, firstValueFrom } from 'rxjs';
 import { Response } from 'express';
@@ -11,10 +11,7 @@ import {
   AccountRegister,
 } from '@app/contracts';
 import { EmailConfirmationService } from './email-confirmation.service';
-
-const handleRpcError = (error) => {
-  throw new RpcException(error.response);
-};
+import { handleRpcError } from '../filters/rpc.exception';
 
 @Injectable()
 export class AuthService {

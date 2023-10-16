@@ -17,3 +17,4 @@ export * from './lib/user/user.create-organizer';
 
 export * from './lib/user-meetup/user-meetup.add-user';
 export * from './lib/user-meetup/user-meetup.delete-user';
+export * from './lib/user-meetup/user-meetups.find-all-meetups';

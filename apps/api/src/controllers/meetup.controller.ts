@@ -10,11 +10,12 @@ import {
   Post,
   Query,
   Req,
-  StreamableFile,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 
 import { Role } from '@prisma/client';
+import { Response } from 'express';
 
 import { MeetupCreate, MeetupUpdate } from '@app/contracts';
 
@@ -49,23 +50,26 @@ export class MeetupController {
   }
 
   @UseGuards(EmailConfirmationGuard)
-  @UseGuards(RoleGuard(Role.PARTICIPANT, Role.ORGANIZER))
+  @UseGuards(RoleGuard(Role.PARTICIPANT, Role.ORGANIZER, Role.ADMIN))
   @Get()
   async findAllMeetups() {
     return this.meetupService.findAllMeetups();
   }
 
-  @UseGuards(RoleGuard(Role.PARTICIPANT, Role.ORGANIZER))
+  @UseGuards(RoleGuard(Role.PARTICIPANT, Role.ORGANIZER, Role.ADMIN))
   @Get('filter')
   async getMeetups(@Query() filterDto: MeetupFilterDto) {
     return this.meetupService.findMeetupsInRadius(filterDto);
   }
 
-  @Get('csv-report')
-  @Header('Content-Type', 'text/csv')
-  @Header('Content-Disposition', 'attachment; filename="meetups.csv"')
-  async generateCSV() {
-    const output = await this.meetupService.generateCSV();
-    return new StreamableFile(output);
+  //@UseGuards(RoleGuard(Role.ORGANIZER, Role.ADMIN))
+  @Get('pdf')
+  @Header('Content-Type', 'application/pdf')
+  @Header('Content-Disposition', 'attachment; filename="meetups.pdf"')
+  async generatePdf(@Res() res: Response) {
+    const buffer = await this.meetupService.generarPDF();
+
+    res.header({ 'Content-Length': buffer.length });
+    res.send(buffer);
   }
 }

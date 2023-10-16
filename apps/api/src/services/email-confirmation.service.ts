@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { ClientProxy } from '@nestjs/microservices';
 
 import { catchError, firstValueFrom } from 'rxjs';
 
@@ -15,10 +15,7 @@ import {
   EMAIL_SUBJECT,
   EMAIL_TEXT,
 } from '../constants/email.constants';
-
-const handleRpcError = (error) => {
-  throw new RpcException(error.response);
-};
+import { handleRpcError } from '../filters/rpc.exception';
 
 @Injectable()
 export class EmailConfirmationService {

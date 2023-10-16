@@ -1,11 +1,41 @@
-import { Body, Controller, Delete, Post } from '@nestjs/common';
-import { UserMeetupService } from '../services/user-meetup.service';
-import { UserMeetupAddUser, UserMeetupDeleteUser } from '@app/contracts';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Header,
+  Post,
+  StreamableFile,
+} from '@nestjs/common';
+
 import { Observable } from 'rxjs';
+
+import {
+  UserMeetupAddUser,
+  UserMeetupDeleteUser,
+  UserMeetupFindAll,
+} from '@app/contracts';
+
+import { UserMeetupService } from '../services/user-meetup.service';
 
 @Controller('user-meetups')
 export class UserMeetupController {
   constructor(private readonly userMeetupService: UserMeetupService) {}
+
+  @Get('csv-report')
+  @Header('Content-Type', 'text/csv')
+  @Header('Content-Disposition', 'attachment; filename="meetups.csv"')
+  async generateCSV(@Body() findUserMeetupsDto: UserMeetupFindAll.Request) {
+    const output = await this.userMeetupService.generateCSV(findUserMeetupsDto);
+    return new StreamableFile(output);
+  }
+
+  @Get('meetups')
+  async findallUserMeetups(
+    @Body() findUserMeetupsDto: UserMeetupFindAll.Request,
+  ) {
+    return this.userMeetupService.findAllUserMeetups(findUserMeetupsDto);
+  }
 
   @Post()
   async addUserToMeetup(

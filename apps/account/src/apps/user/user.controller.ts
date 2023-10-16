@@ -1,7 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
-import { UserService } from './user.service';
 import {
   UserCreateOrganizer,
   UserDelete,
@@ -10,6 +9,7 @@ import {
   UserUploadFile,
 } from '@app/contracts';
 import { LocalFileData } from '@app/interfaces';
+import { UserService } from './user.service';
 
 @Controller()
 export class UserController {

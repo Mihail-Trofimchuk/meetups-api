@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { ClientProxy } from '@nestjs/microservices';
 
-import { catchError, firstValueFrom } from 'rxjs';
 import * as geolib from 'geolib';
+import { catchError, firstValueFrom } from 'rxjs';
 
 import {
   MeetupCreate,
@@ -10,13 +10,10 @@ import {
   MeetupSearch,
   MeetupUpdate,
 } from '@app/contracts';
-import { MeetupFilterDto } from '../dtos/meetups-filter.dto';
 import { CONVERT_TO_KM } from '../constants/meetup.constants';
-import { stringify } from 'csv-stringify';
-
-const handleRpcError = (error) => {
-  throw new RpcException(error.response);
-};
+import { MeetupFilterDto } from '../dtos/meetups-filter.dto';
+import { generatePDF } from '../utils/pdf-generator';
+import { handleRpcError } from '../filters/rpc.exception';
 
 function isMeetupInRadius(meetup, center, radius: number) {
   const meetupCoords = {
@@ -69,13 +66,11 @@ export class MeetupService {
     return meetups.filter((meetup) => isMeetupInRadius(meetup, center, radius));
   }
 
-  async generateCSV() {
+  async generarPDF(): Promise<Buffer> {
     const meetups = await firstValueFrom(
       this.sendRCPRequest(MeetupSearch.findAllMeetupsTopic, {}),
     );
-    console.log(meetups);
-    const output = stringify(meetups, { header: true, delimiter: ';' });
 
-    return output;
+    return generatePDF(meetups);
   }
 }

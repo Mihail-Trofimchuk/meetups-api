@@ -30,6 +30,10 @@ export class MeetupService {
     return await this.meetupRepository.findMeetupByTitle(email);
   }
 
+  async findMeetupById(id: number) {
+    return await this.meetupRepository.findMeetupById(id);
+  }
+
   async updateMeetup(id: number, meetupUpdate: MeetupUpdate.Request) {
     return await this.meetupRepository.update(id, meetupUpdate);
   }

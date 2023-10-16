@@ -27,6 +27,10 @@ export class MeetupRepository {
     return await this.dbService.meetup.findFirst({ where: { title } });
   }
 
+  public async findMeetupById(id: number) {
+    return await this.dbService.meetup.findFirst({ where: { id } });
+  }
+
   public async update(
     id: number,
     updateDto: MeetupUpdate.Request,

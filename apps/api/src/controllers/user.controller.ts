@@ -49,11 +49,13 @@ export class UserController {
     });
   }
 
+  // @UseGuards(RoleGuard(Role.ADMIN))
   @Delete(':id')
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
     return this.userService.deleteUser(id);
   }
 
+  // @UseGuards(RoleGuard(Role.ADMIN, Role.ORGANIZER))
   @Get(':id')
   async findUserById(
     @Param('id', ParseIntPipe) id: number,

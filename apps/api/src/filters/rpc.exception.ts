@@ -3,6 +3,10 @@ import { RpcException } from '@nestjs/microservices';
 
 import { Response } from 'express';
 
+export const handleRpcError = (error) => {
+  throw new RpcException(error.response);
+};
+
 @Catch(RpcException)
 export class RpcExceptionToHttpExceptionFilter implements ExceptionFilter {
   catch(exception: RpcException, host: ArgumentsHost) {

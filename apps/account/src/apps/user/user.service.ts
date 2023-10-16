@@ -7,7 +7,10 @@ import { LocalFileData } from '@app/interfaces';
 import { UserCreateOrganizer, UserDelete, UserUpdate } from '@app/contracts';
 import { UserRepository } from './user.repository';
 import { FilesService } from '../files/files.service';
-import { USER_NOT_FOUND_ERROR } from './user.constants';
+import {
+  USER_EMAIL_NOT_FOUND_ERROR,
+  USER_NOT_FOUND_ERROR,
+} from './user.constants';
 
 @Injectable()
 export class UserService {
@@ -53,6 +56,9 @@ export class UserService {
 
   async findUserByEmail(email: string) {
     const user = await this.userRepository.findUserByEmail(email);
+    if (!user) {
+      throw new RpcException(new NotFoundException(USER_NOT_FOUND_ERROR));
+    }
     return user.id;
   }
 
@@ -66,8 +72,9 @@ export class UserService {
     const user = await this.userRepository.findUserByEmail(
       createOrganizerDto.email,
     );
+
     if (!user) {
-      throw new RpcException(new NotFoundException(USER_NOT_FOUND_ERROR));
+      throw new RpcException(new NotFoundException(USER_EMAIL_NOT_FOUND_ERROR));
     }
 
     return await this.userRepository.createOrganizer(user.id);

@@ -4,7 +4,7 @@ import {
   NotFoundException,
   StreamableFile,
 } from '@nestjs/common';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { ClientProxy } from '@nestjs/microservices';
 
 import { catchError, firstValueFrom } from 'rxjs';
 import { Response } from 'express';
@@ -20,10 +20,7 @@ import {
 } from '@app/contracts';
 import { LocalFileData } from '@app/interfaces';
 import { FILE_NOT_FOUND_ERROR } from '../constants/user.constants';
-
-const handleRpcError = (error) => {
-  throw new RpcException(error.response);
-};
+import { handleRpcError } from '../filters/rpc.exception';
 
 @Injectable()
 export class UserService {

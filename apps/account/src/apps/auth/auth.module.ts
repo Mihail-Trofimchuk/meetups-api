@@ -3,9 +3,9 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { DbModule } from '@app/db';
 
+import { getJWTConfig } from '../../config/jwt.config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { getJWTConfig } from '../../config/jwt.config';
 import { UserModule } from '../user/user.module';
 
 @Module({

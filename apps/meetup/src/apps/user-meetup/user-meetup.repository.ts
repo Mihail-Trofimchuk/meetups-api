@@ -7,6 +7,17 @@ import { UserMeetupAddUser, UserMeetupDeleteUser } from '@app/contracts';
 export class UserMeetupRepository {
   constructor(private readonly dbService: DbService) {}
 
+  async findAllUserMeetups(userId: number) {
+    return await this.dbService.userMeetup.findMany({
+      include: {
+        meetup: true,
+      },
+      where: {
+        userId,
+      },
+    });
+  }
+
   async findUserMeetup(meetupId: number, userId: number) {
     return await this.dbService.userMeetup.findUnique({
       where: {

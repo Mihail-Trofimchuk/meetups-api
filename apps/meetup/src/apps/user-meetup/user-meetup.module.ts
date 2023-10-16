@@ -6,6 +6,8 @@ import { DbService } from '@app/db';
 import { UserMeetupService } from './user-meetup.service';
 import { UserMeetupController } from './user-meetup.controller';
 import { UserMeetupRepository } from './user-meetup.repository';
+import { MeetupService } from '../meetup/meetup.service';
+import { MeetupRepository } from '../meetup/meetup.repository';
 
 @Module({
   imports: [
@@ -24,6 +26,12 @@ import { UserMeetupRepository } from './user-meetup.repository';
     ]),
   ],
   controllers: [UserMeetupController],
-  providers: [UserMeetupService, UserMeetupRepository, DbService],
+  providers: [
+    UserMeetupService,
+    UserMeetupRepository,
+    DbService,
+    MeetupService,
+    MeetupRepository,
+  ],
 })
 export class UserMeetupModule {}
