@@ -8,6 +8,7 @@ import * as passport from 'passport';
 
 import { ApiModule } from './api.module';
 import { RpcExceptionToHttpExceptionFilter } from './filters/rpc.exception';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule);
@@ -26,6 +27,15 @@ async function bootstrap() {
       },
     }),
   );
+
+  const config = new DocumentBuilder()
+    .setTitle('NestModsenPractice')
+    .setVersion('0.0.1')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/swagger', app, document);
 
   app.use(passport.initialize());
   app.use(passport.session());

@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsOptional,
@@ -11,9 +12,11 @@ export namespace AccountRegister {
   export const topic = 'account.register.command';
 
   export class Request {
+    @ApiProperty()
     @IsEmail()
     email: string;
 
+    @ApiProperty()
     @IsString()
     @MinLength(4)
     @MaxLength(20)
@@ -22,6 +25,7 @@ export namespace AccountRegister {
     })
     password: string;
 
+    @ApiProperty()
     @IsOptional()
     @IsString()
     displayName?: string;

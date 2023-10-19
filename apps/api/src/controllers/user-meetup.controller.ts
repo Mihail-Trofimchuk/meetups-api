@@ -17,7 +17,9 @@ import {
 } from '@app/contracts';
 
 import { UserMeetupService } from '../services/user-meetup.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('user-meetups')
 @Controller('user-meetups')
 export class UserMeetupController {
   constructor(private readonly userMeetupService: UserMeetupService) {}

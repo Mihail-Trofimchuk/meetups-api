@@ -16,7 +16,6 @@ export class ExceptionFilter implements RpcExceptionFilter<RpcException> {
         throw new NotFoundException(USER_NOT_FOUND_ERROR);
       });
     } else {
-      console.log(exception.getError());
       return throwError(() => exception.getError());
     }
   }

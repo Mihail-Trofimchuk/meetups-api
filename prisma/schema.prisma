@@ -10,15 +10,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id               Int        @id @default(autoincrement())
-  email            String     @unique
-  displayName      String?    @map("display_name")
-  passwordHash     String?    @map("password_hash")
-  role             Role
-  avatar           LocalFile? @relation(fields: [avatarId], references: [id])
-  avatarId         Int?       @unique @map("avatar_id")
-  isEmailConfirmed Boolean    @default(false)
+model UserMeetup {
+  user     User   @relation("Participants", fields: [userId], references: [id])
+  userId   Int    @map("user_id")
+  meetup   Meetup @relation(fields: [meetupId], references: [id])
+  meetupId Int    @map("meetup_id")
+
+  @@id([userId, meetupId])
+  @@map("user_meetup")
 }
 
 model LocalFile {
@@ -27,19 +26,42 @@ model LocalFile {
   fileName String @map("file_name")
   path     String
   mimeType String @map("mime_type")
+
+  @@map("local_file")
+}
+
+model User {
+  id                Int          @id @default(autoincrement())
+  email             String       @unique
+  displayName       String?      @map("display_name")
+  passwordHash      String?      @map("password_hash")
+  role              Role         @default(PARTICIPANT)
+  avatar            LocalFile?   @relation(fields: [avatarId], references: [id])
+  avatarId          Int?         @unique @map("avatar_id")
+  isEmailConfirmed  Boolean      @default(false) @map("is_email_confirmed")
+  meetup            UserMeetup[] @relation("Participants")
+  organizedMeetings Meetup[]     @relation("Organizer")
+
+  @@map("user")
 }
 
 model Meetup {
-  id          Int      @id @default(autoincrement())
-  title       String   @unique
-  description String
-  tags        String[]
-  meetingTime DateTime @map("meeting_time")
-  latitude    Decimal
-  longitude   Decimal
+  id           Int          @id @default(autoincrement())
+  title        String       @unique
+  description  String
+  tags         String[]
+  meetingTime  DateTime     @map("meeting_time")
+  latitude     Decimal
+  longitude    Decimal
+  participants UserMeetup[]
+  createdBy    User?        @relation("Organizer", fields: [createdById], references: [id])
+  createdById  Int?         @map("created_by_id")
+
+  @@map("meetup")
 }
 
 enum Role {
-  USER
+  ADMIN
+  PARTICIPANT
   ORGANIZER
 }

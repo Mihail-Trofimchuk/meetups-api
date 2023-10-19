@@ -19,7 +19,9 @@ import { GoogleAuthGuard } from '../guards/google.guard';
 import { GetGooglePayload } from '../decorators/google-payload.decorator';
 import { EmailConfirmationService } from '../services/email-confirmation.service';
 import { JwtAuthGuard } from '../guards/jwt.guard';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -45,6 +47,7 @@ export class AuthController {
     return this.authService.register(dto);
   }
 
+  // @ApiBody({ type: [AccountLogin.Request] })
   @Post('login')
   async login(
     @Body() dto: AccountLogin.Request,

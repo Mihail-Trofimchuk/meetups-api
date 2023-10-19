@@ -19,7 +19,9 @@ import { Response } from 'express';
 
 import { UserCreateOrganizer, UserUpdate } from '@app/contracts';
 import { UserService } from '../services/user.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}

@@ -8,8 +8,7 @@ const RoleGuard = (...roles: Role[]): Type<CanActivate> => {
       await super.canActivate(context);
 
       const request = context.switchToHttp().getRequest();
-      const user = request.user.user;
-
+      const user = request.user;
       return roles.some((role) => user?.role.includes(role));
     }
   }

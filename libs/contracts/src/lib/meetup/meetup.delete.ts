@@ -23,5 +23,7 @@ export namespace MeetupDelete {
     latitude: Decimal;
 
     longitude: Decimal;
+
+    createdById: number;
   }
 }

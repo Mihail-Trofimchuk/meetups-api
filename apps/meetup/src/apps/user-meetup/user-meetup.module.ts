@@ -8,6 +8,9 @@ import { UserMeetupController } from './user-meetup.controller';
 import { UserMeetupRepository } from './user-meetup.repository';
 import { MeetupService } from '../meetup/meetup.service';
 import { MeetupRepository } from '../meetup/meetup.repository';
+import { MeetupsSearchService } from '../meetups-search/meetups-search.service';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -24,6 +27,17 @@ import { MeetupRepository } from '../meetup/meetup.repository';
         },
       },
     ]),
+    ElasticsearchModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        node: configService.get('ELASTICSEARCH_NODE'),
+        auth: {
+          username: configService.get('ELASTICSEARCH_USERNAME'),
+          password: configService.get('ELASTICSEARCH_PASSWORD'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [UserMeetupController],
   providers: [
@@ -32,6 +46,7 @@ import { MeetupRepository } from '../meetup/meetup.repository';
     DbService,
     MeetupService,
     MeetupRepository,
+    MeetupsSearchService,
   ],
 })
 export class UserMeetupModule {}

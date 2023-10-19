@@ -3,15 +3,19 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { DbService } from '@app/db';
 
+import { ConfigModule } from '@nestjs/config';
 import { MeetupController } from './apps/meetup/meetup.controller';
-import { MeetupService } from './apps/meetup/meetup.service';
 import { MeetupRepository } from './apps/meetup/meetup.repository';
-import { UserMeetupService } from './apps/user-meetup/user-meetup.service';
+import { MeetupService } from './apps/meetup/meetup.service';
+import { MeetupsSearchModule } from './apps/meetups-search/meetups-search.module';
 import { UserMeetupModule } from './apps/user-meetup/user-meetup.module';
 import { UserMeetupRepository } from './apps/user-meetup/user-meetup.repository';
+import { UserMeetupService } from './apps/user-meetup/user-meetup.service';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: 'envs/.meetup.env' }),
+    MeetupsSearchModule,
     UserMeetupModule,
     ClientsModule.register([
       {
