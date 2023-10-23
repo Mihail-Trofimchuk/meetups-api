@@ -10,11 +10,7 @@ import {
 
 import { MeetupsSearchService } from '../meetups-search/meetups-search.service';
 import { MeetupRepository } from './meetup.repository';
-import {
-  ACCESS_DENIED_ERROR,
-  MEETUP_ALREADY_EXISTS,
-  MEETUP_NOT_FOUND_ERROR,
-} from './meetup.constants';
+import { ERROR_MESSAGES } from './meetup.constants';
 
 @Injectable()
 export class MeetupService {
@@ -24,21 +20,19 @@ export class MeetupService {
   ) {}
 
   async createMeetup(
-    createDto: MeetupCreate.MeetupRequest,
-    createdById: number,
+    createContract: MeetupCreate.Request,
   ): Promise<MeetupCreate.Response> {
     const meetup = await this.meetupRepository.findMeetupByTitle(
-      createDto.title,
+      createContract.title,
     );
 
     if (meetup) {
-      throw new RpcException(new ConflictException(MEETUP_ALREADY_EXISTS));
+      throw new RpcException(
+        new ConflictException(ERROR_MESSAGES.MEETUP_ALREADY_EXISTS),
+      );
     }
 
-    const newMeetup = await this.meetupRepository.create(
-      createDto,
-      createdById,
-    );
+    const newMeetup = await this.meetupRepository.create(createContract);
 
     this.meetupsSearchModule.indexMeetup(newMeetup);
     return newMeetup;
@@ -57,13 +51,15 @@ export class MeetupService {
   }
 
   async updateMeetup(
-    id: number,
     meetupUpdate: MeetupUpdate.Request,
+    meetupId: number,
     userId: number,
   ): Promise<MeetupUpdate.Response> {
-    const meetup = await this.findMeetupById(id);
+    const meetup = await this.findMeetupById(meetupId);
     if (meetup.createdById !== userId) {
-      throw new RpcException(new ConflictException(ACCESS_DENIED_ERROR));
+      throw new RpcException(
+        new ConflictException(ERROR_MESSAGES.ACCESS_DENIED_ERROR),
+      );
     }
 
     if (meetupUpdate.title !== meetup.title) {
@@ -76,28 +72,33 @@ export class MeetupService {
     meetup.meetingTime = meetupUpdate.meetingTime;
     meetup.tags = meetupUpdate.tags;
 
-    this.meetupsSearchModule.removeIndex(id);
+    this.meetupsSearchModule.removeIndex(meetupId);
     this.meetupsSearchModule.indexMeetup(meetup);
-    return await this.meetupRepository.update(id, meetup);
+    return await this.meetupRepository.update(meetupId, meetup);
   }
 
   async deleteMeetup(
-    id: number,
-    userId: number,
+    deleteContract: MeetupDelete.Request,
   ): Promise<MeetupDelete.Response> {
-    const meetup = await this.findMeetupById(id);
+    const meetup = await this.findMeetupById(deleteContract.meetupId);
 
     if (!meetup) {
-      throw new RpcException(new ConflictException(MEETUP_NOT_FOUND_ERROR));
+      throw new RpcException(
+        new ConflictException(ERROR_MESSAGES.MEETUP_NOT_FOUND_ERROR),
+      );
     }
-    if (meetup.createdById !== userId) {
-      throw new RpcException(new ConflictException(ACCESS_DENIED_ERROR));
+    if (meetup.createdById !== deleteContract.userId) {
+      throw new RpcException(
+        new ConflictException(ERROR_MESSAGES.ACCESS_DENIED_ERROR),
+      );
     }
-    this.meetupsSearchModule.removeIndex(id);
-    return await this.meetupRepository.remove(id);
+    this.meetupsSearchModule.removeIndex(deleteContract.meetupId);
+    return await this.meetupRepository.remove(deleteContract.meetupId);
   }
 
-  async findAllMeetupsElastic(searchDto: MeetupSearch.MeetupSearchDto) {
+  async findAllMeetupsElastic(
+    searchDto: MeetupSearch.ElasticQuery,
+  ): Promise<MeetupSearch.Response> {
     return this.meetupsSearchModule.search(searchDto.query);
   }
 }

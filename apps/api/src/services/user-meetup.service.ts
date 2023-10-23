@@ -1,16 +1,21 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
-import { catchError, firstValueFrom } from 'rxjs';
+import { stringify } from 'csv-stringify';
+import { Observable, catchError, firstValueFrom } from 'rxjs';
 
 import {
-  UserMeetupAddUser,
-  UserMeetupDeleteUser,
+  UserMeetupAdd,
+  UserMeetupDelete,
   UserMeetupFindAll,
 } from '@app/contracts';
-
-import { stringify } from 'csv-stringify';
 import { handleRpcError } from '../filters/rpc.exception';
+import { UserMeetupDeleteDto } from '../dtos/user-meetup/delete-user-meetup.dto';
+import { UserMeetupAddDto } from '../dtos/user-meetup/add-user-meetup.dto';
+import { UserMeetupDeleteResponse } from '../response/user-meetup/delete-user-meetup.response';
+import { UserMeetupAddResponse } from '../response/user-meetup/add-user-meetup.response';
+import { UserMeetupFindAllDto } from '../dtos/user-meetup/search-user-meetup.dto';
+import { UserMeetupSearchResponse } from '../response/user-meetup/search-user-meetup.response';
 
 @Injectable()
 export class UserMeetupService {
@@ -24,7 +29,7 @@ export class UserMeetupService {
 
   async generateCSV(findUserMeetupsDto: UserMeetupFindAll.Request) {
     const meetups = await firstValueFrom(
-      this.sendRCPRequest(UserMeetupFindAll.topic, findUserMeetupsDto),
+      this.sendRCPRequest(UserMeetupFindAll.Topic, findUserMeetupsDto),
     );
 
     const meetupObjects = meetups.map((item) => item.meetup);
@@ -34,21 +39,27 @@ export class UserMeetupService {
     return output;
   }
 
-  async findAllUserMeetups(findUserMeetupsDto: UserMeetupFindAll.Request) {
+  async findAllUserMeetups(
+    findUserMeetupsDto: UserMeetupFindAllDto,
+  ): Promise<Observable<UserMeetupSearchResponse[]>> {
     return this.client
-      .send({ cmd: UserMeetupFindAll.topic }, findUserMeetupsDto)
+      .send({ cmd: UserMeetupFindAll.Topic }, findUserMeetupsDto)
       .pipe(catchError(handleRpcError));
   }
 
-  async addUserToMeetup(addUserdto: UserMeetupAddUser.Request) {
+  async addUserToMeetup(
+    addUserdto: UserMeetupAddDto,
+  ): Promise<Observable<UserMeetupAddResponse>> {
     return this.client
-      .send({ cmd: UserMeetupAddUser.topic }, addUserdto)
+      .send({ cmd: UserMeetupAdd.Topic }, addUserdto)
       .pipe(catchError(handleRpcError));
   }
 
-  async deleteUserFromMeetup(deleteUserdto: UserMeetupDeleteUser.Request) {
+  async deleteUserFromMeetup(
+    deleteUserdto: UserMeetupDeleteDto,
+  ): Promise<Observable<UserMeetupDeleteResponse>> {
     return this.client
-      .send({ cmd: UserMeetupDeleteUser.topic }, deleteUserdto)
+      .send({ cmd: UserMeetupDelete.Topic }, deleteUserdto)
       .pipe(catchError(handleRpcError));
   }
 }

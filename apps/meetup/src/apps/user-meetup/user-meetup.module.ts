@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { DbService } from '@app/db';
 
@@ -9,8 +11,6 @@ import { UserMeetupRepository } from './user-meetup.repository';
 import { MeetupService } from '../meetup/meetup.service';
 import { MeetupRepository } from '../meetup/meetup.repository';
 import { MeetupsSearchService } from '../meetups-search/meetups-search.service';
-import { ElasticsearchModule } from '@nestjs/elasticsearch';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [

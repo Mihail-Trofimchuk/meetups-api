@@ -1,6 +1,4 @@
 import {
-  IsEmail,
-  IsNumber,
   IsOptional,
   IsString,
   Matches,
@@ -9,7 +7,7 @@ import {
 } from 'class-validator';
 
 export namespace UserUpdate {
-  export const topic = 'user.update.command';
+  export const Topic = 'user.update.command';
 
   export class Request {
     @IsOptional()
@@ -26,17 +24,12 @@ export namespace UserUpdate {
   }
 
   export class Response {
-    @IsNumber()
     id: number;
 
-    @IsEmail()
     email: string;
 
-    @IsOptional()
-    @IsString()
     displayName?: string;
 
-    @IsString()
-    password: string;
+    passwordHash: string;
   }
 }

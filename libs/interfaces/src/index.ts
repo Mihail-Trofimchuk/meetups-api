@@ -7,3 +7,4 @@ export * from './lib/auth/google-payload.interface';
 export * from './lib/auth/varification-token-payload.interface';
 
 export * from './lib/meetup/center-coordinates.interface';
+export * from './lib/meetup/meetup-request.interface';

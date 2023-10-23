@@ -1,3 +1,1 @@
-export namespace AccountSerializer {
-  export const topic = 'account.serialize.command';
-}
+export const AccountSerializerTopic = 'account.serialize.command';

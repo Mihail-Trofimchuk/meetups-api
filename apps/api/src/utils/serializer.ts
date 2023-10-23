@@ -6,7 +6,7 @@ import { VerifyCallback } from 'passport-jwt';
 import { catchError, firstValueFrom } from 'rxjs';
 
 import { GooglePayload } from '@app/interfaces';
-import { AccountSerializer } from '@app/contracts';
+import { AccountSerializerTopic } from '@app/contracts';
 
 const handleRpcError = (error) => {
   throw new RpcException(error.response);
@@ -25,7 +25,7 @@ export class SessionSerializer extends PassportSerializer {
   async deserializeUser(payload: GooglePayload, done: VerifyCallback) {
     const user = await firstValueFrom(
       this.client
-        .send({ cmd: AccountSerializer.topic }, payload)
+        .send({ cmd: AccountSerializerTopic }, payload)
         .pipe(catchError(handleRpcError)),
     );
 

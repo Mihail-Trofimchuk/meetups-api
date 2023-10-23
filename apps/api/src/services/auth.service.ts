@@ -1,17 +1,21 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
-import { catchError, firstValueFrom } from 'rxjs';
+import { Observable, catchError, firstValueFrom } from 'rxjs';
 import { Response } from 'express';
 
 import { GooglePayload } from '@app/interfaces';
 import {
-  AccountGoogleAuth,
+  AccountGoogleAuthTopic,
   AccountLogin,
   AccountRegister,
 } from '@app/contracts';
 import { EmailConfirmationService } from './email-confirmation.service';
 import { handleRpcError } from '../filters/rpc.exception';
+import { UserLoginDto } from '../dtos/auth/login-user.dto';
+import { RegisterUserDto } from '../dtos/auth/register-user.dto';
+import { RegisterResponse } from '../response/auth/register-user.response';
+import { INFO_MESSAGES } from '../constants/user.constants';
 
 @Injectable()
 export class AuthService {
@@ -26,18 +30,18 @@ export class AuthService {
       .pipe(catchError(handleRpcError));
   }
 
-  async register(dto: AccountRegister.Request) {
+  async register(dto: RegisterUserDto): Promise<Observable<RegisterResponse>> {
     const newUser = await firstValueFrom(
-      this.sendRCPRequest(AccountRegister.topic, dto),
+      this.sendRCPRequest(AccountRegister.Topic, dto),
     );
 
     await this.emailConfirmationService.sendVerificationLink(dto.email);
     return newUser;
   }
 
-  async login(dto: AccountLogin.Request, res: Response) {
+  async login(dto: UserLoginDto, res: Response): Promise<string> {
     const access_token = await firstValueFrom(
-      this.sendRCPRequest(AccountLogin.topic, dto),
+      this.sendRCPRequest(AccountLogin.Topic, dto),
     );
 
     res.cookie('access_token', access_token);
@@ -46,11 +50,12 @@ export class AuthService {
 
   async getCookieForLogOut(response: Response) {
     response.cookie('access_token', '');
+    response.json({ message: INFO_MESSAGES.USER_LOG_OUT });
   }
 
   async googleLogin(googlePayload: GooglePayload, res: Response) {
     const access_token = await firstValueFrom(
-      this.sendRCPRequest(AccountGoogleAuth.topic, googlePayload),
+      this.sendRCPRequest(AccountGoogleAuthTopic, googlePayload),
     );
 
     res.cookie('access_token', access_token);

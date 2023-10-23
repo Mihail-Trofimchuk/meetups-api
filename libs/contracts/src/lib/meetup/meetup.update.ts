@@ -1,10 +1,9 @@
-import { MeetupCreate } from './meetup.create';
-import { PartialType } from '@nestjs/mapped-types';
+import { MeetupCreate } from '@app/contracts';
 
 export namespace MeetupUpdate {
   export const topic = 'meetup.update.command';
 
-  export class Request extends PartialType(MeetupCreate.MeetupRequest) {}
+  export class Request extends MeetupCreate.Request {}
 
-  export class Response extends PartialType(MeetupCreate.Response) {}
+  export class Response extends MeetupCreate.Response {}
 }

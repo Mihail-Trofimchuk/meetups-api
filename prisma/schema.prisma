@@ -11,24 +11,25 @@ datasource db {
 }
 
 model UserMeetup {
-  user     User   @relation("Participants", fields: [userId], references: [id])
+  user     User   @relation("Participants", fields: [userId], references: [id], onDelete: Cascade)
   userId   Int    @map("user_id")
-  meetup   Meetup @relation(fields: [meetupId], references: [id])
+  meetup   Meetup @relation(fields: [meetupId], references: [id], onDelete: Cascade)
   meetupId Int    @map("meetup_id")
 
   @@id([userId, meetupId])
   @@map("user_meetup")
 }
 
-model LocalFile {
-  id       Int    @id @default(autoincrement())
-  user     User?
-  fileName String @map("file_name")
-  path     String
-  mimeType String @map("mime_type")
+// Only local storage use
+// model LocalFile {
+//   id       Int    @id @default(autoincrement())
+//   user     User?
+//   fileName String @map("file_name")
+//   path     String
+//   mimeType String @map("mime_type")
 
-  @@map("local_file")
-}
+//   @@map("local_file")
+// }
 
 model User {
   id                Int          @id @default(autoincrement())
@@ -36,8 +37,11 @@ model User {
   displayName       String?      @map("display_name")
   passwordHash      String?      @map("password_hash")
   role              Role         @default(PARTICIPANT)
-  avatar            LocalFile?   @relation(fields: [avatarId], references: [id])
-  avatarId          Int?         @unique @map("avatar_id")
+  // Only local storage use
+  // avatar            LocalFile?   @relation(fields: [avatarId], references: [id], onDelete: Cascade)
+  // avatarId          Int?         @unique @map("avatar_id")
+  //
+  avatarGoogleCloud String?      @map("avatar_google_cloud")
   isEmailConfirmed  Boolean      @default(false) @map("is_email_confirmed")
   meetup            UserMeetup[] @relation("Participants")
   organizedMeetings Meetup[]     @relation("Organizer")
@@ -54,7 +58,7 @@ model Meetup {
   latitude     Decimal
   longitude    Decimal
   participants UserMeetup[]
-  createdBy    User?        @relation("Organizer", fields: [createdById], references: [id])
+  createdBy    User?        @relation("Organizer", fields: [createdById], references: [id], onDelete: Cascade)
   createdById  Int?         @map("created_by_id")
 
   @@map("meetup")

@@ -2,13 +2,15 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
 import {
-  AccountConfirmEmail,
-  AccountGoogleAuth,
+  AccountConfirmEmailTopic,
+  AccountConfirmResponse,
+  AccountGoogleAuthTopic,
   AccountLogin,
   AccountRegister,
-  AccountSerializer,
+  AccountSerializerTopic,
 } from '@app/contracts';
 import { GooglePayload } from '@app/interfaces';
+import { User } from '@prisma/client';
 
 import { AuthService } from './auth.service';
 
@@ -16,42 +18,42 @@ import { AuthService } from './auth.service';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @MessagePattern({ cmd: AccountRegister.topic })
+  @MessagePattern({ cmd: AccountRegister.Topic })
   async register(
-    @Payload() registerDto: AccountRegister.Request,
+    @Payload() registerContract: AccountRegister.Request,
   ): Promise<AccountRegister.Response> {
-    return this.authService.register(registerDto);
+    return this.authService.register(registerContract);
   }
 
-  @MessagePattern({ cmd: AccountLogin.topic })
+  @MessagePattern({ cmd: AccountLogin.Topic })
   async login(
     @Payload()
-    dto: AccountLogin.Request,
-  ) {
-    return this.authService.login(dto);
+    loginContract: AccountLogin.Request,
+  ): Promise<AccountLogin.Response> {
+    return this.authService.login(loginContract);
   }
 
-  @MessagePattern({ cmd: AccountGoogleAuth.topic })
+  @MessagePattern({ cmd: AccountGoogleAuthTopic })
   async googleLogin(
     @Payload()
-    dto: GooglePayload,
-  ) {
-    return this.authService.googleLogin(dto);
+    googlePayload: GooglePayload,
+  ): Promise<AccountLogin.Response> {
+    return this.authService.googleLogin(googlePayload);
   }
 
-  @MessagePattern({ cmd: AccountSerializer.topic })
+  @MessagePattern({ cmd: AccountSerializerTopic })
   async serialize(
     @Payload()
     dto: GooglePayload,
-  ) {
+  ): Promise<User> {
     return this.authService.findUser(dto);
   }
 
-  @MessagePattern({ cmd: AccountConfirmEmail.topic })
+  @MessagePattern({ cmd: AccountConfirmEmailTopic })
   async confirmEmail(
     @Payload()
     email: string,
-  ) {
+  ): Promise<AccountConfirmResponse> {
     return await this.authService.confirmEmail(email);
   }
 }

@@ -3,6 +3,7 @@
 /node_modules
 /envs/
 .envs
+google-key.json
 
 # Logs
 logs

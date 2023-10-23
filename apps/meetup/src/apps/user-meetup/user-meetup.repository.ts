@@ -1,13 +1,19 @@
 import { Injectable } from '@nestjs/common';
 
 import { DbService } from '@app/db';
-import { UserMeetupAddUser, UserMeetupDeleteUser } from '@app/contracts';
+import {
+  UserMeetupAdd,
+  UserMeetupDelete,
+  UserMeetupFindAll,
+} from '@app/contracts';
 
 @Injectable()
 export class UserMeetupRepository {
   constructor(private readonly dbService: DbService) {}
 
-  async findAllUserMeetups(userId: number) {
+  async findAllUserMeetups(
+    userId: number,
+  ): Promise<UserMeetupFindAll.Response[]> {
     return await this.dbService.userMeetup.findMany({
       include: {
         meetup: true,
@@ -18,7 +24,10 @@ export class UserMeetupRepository {
     });
   }
 
-  async findUserMeetup(meetupId: number, userId: number) {
+  async findUserMeetup(
+    meetupId: number,
+    userId: number,
+  ): Promise<UserMeetupFindAll.Response> {
     return await this.dbService.userMeetup.findUnique({
       where: {
         userId_meetupId: {
@@ -32,7 +41,7 @@ export class UserMeetupRepository {
   async addUserToMeetup(
     meetupId: number,
     userId: number,
-  ): Promise<UserMeetupAddUser.Response> {
+  ): Promise<UserMeetupAdd.Response> {
     return await this.dbService.userMeetup.create({
       data: {
         meetupId,
@@ -44,7 +53,7 @@ export class UserMeetupRepository {
   async deleteUserFromMeetup(
     meetupId: number,
     userId: number,
-  ): Promise<UserMeetupDeleteUser.Response> {
+  ): Promise<UserMeetupDelete.Response> {
     return await this.dbService.userMeetup.delete({
       where: {
         userId_meetupId: {

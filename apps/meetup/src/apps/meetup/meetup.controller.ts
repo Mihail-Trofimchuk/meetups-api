@@ -14,21 +14,14 @@ import { MeetupService } from './meetup.service';
 export class MeetupController {
   constructor(private readonly meetupService: MeetupService) {}
 
-  @MessagePattern({ cmd: MeetupCreate.topic })
+  @MessagePattern({ cmd: MeetupCreate.Topic })
   async createMeetup(
-    @Payload()
-    {
-      createDto,
-      createdById,
-    }: {
-      createDto: MeetupCreate.MeetupRequest;
-      createdById: number;
-    },
+    @Payload() createContract: MeetupCreate.Request,
   ): Promise<MeetupCreate.Response> {
-    return this.meetupService.createMeetup(createDto, createdById);
+    return this.meetupService.createMeetup(createContract);
   }
 
-  @MessagePattern({ cmd: MeetupSearch.findAllMeetupsTopic })
+  @MessagePattern({ cmd: MeetupSearch.FindAllMeetupsTopic })
   async findAllMeetups(): Promise<MeetupSearch.Response[]> {
     return this.meetupService.findAllMeetups();
   }
@@ -36,31 +29,23 @@ export class MeetupController {
   @MessagePattern({ cmd: MeetupUpdate.topic })
   async updateMeetup(
     @Payload()
-    {
-      id,
-      meetupUpdate,
-      userId,
-    }: {
-      id: number;
-      meetupUpdate: MeetupUpdate.Request;
-      userId: number;
-    },
+    meetupUpdate: MeetupUpdate.Request & { meetupId: number; userId: number },
   ): Promise<MeetupUpdate.Response> {
-    return this.meetupService.updateMeetup(id, meetupUpdate, userId);
+    const { meetupId, userId, ...updateDto } = meetupUpdate;
+    return this.meetupService.updateMeetup(updateDto, meetupId, userId);
   }
 
-  @MessagePattern({ cmd: MeetupDelete.topic })
+  @MessagePattern({ cmd: MeetupDelete.Topic })
   async deleteMeetup(
-    @Payload()
-    { id, userId }: { id: number; userId: number },
+    @Payload() deleteContract: MeetupDelete.Request,
   ): Promise<MeetupDelete.Response> {
-    return this.meetupService.deleteMeetup(id, userId);
+    return this.meetupService.deleteMeetup(deleteContract);
   }
 
-  @MessagePattern({ cmd: MeetupSearch.findAllMeetupsElasticTopic })
+  @MessagePattern({ cmd: MeetupSearch.FindAllMeetupsElasticTopic })
   async findAllMeetupsElastic(
-    @Payload() searchDto: MeetupSearch.MeetupSearchDto,
+    @Payload() searchContract: MeetupSearch.ElasticQuery,
   ) {
-    return this.meetupService.findAllMeetupsElastic(searchDto);
+    return this.meetupService.findAllMeetupsElastic(searchContract);
   }
 }

@@ -36,11 +36,11 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
     return null;
   }
   async validate(payload: IJWTPayload) {
-    const userWithFile = await firstValueFrom(
+    const user = await firstValueFrom(
       this.client
-        .send({ cmd: UserSearch.findOneTopic }, payload.id)
+        .send({ cmd: UserSearch.OneUserTopic }, payload.id)
         .pipe(catchError(handleRpcError)),
     );
-    return userWithFile.user;
+    return user;
   }
 }

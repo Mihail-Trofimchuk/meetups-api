@@ -60,8 +60,6 @@ export class MeetupsSearchService {
       },
     });
 
-    console.log(body.hits);
-
     const hits = body.hits.hits;
     return hits.map((hit: any) => hit._source);
   }

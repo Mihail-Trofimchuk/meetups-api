@@ -1,7 +1,7 @@
 import { IsEmail, IsNumber } from 'class-validator';
 
-export namespace UserMeetupDeleteUser {
-  export const topic = 'user-meetup.delete-user.command';
+export namespace UserMeetupDelete {
+  export const Topic = 'user-meetup.delete-user.command';
 
   export class Request {
     @IsEmail()

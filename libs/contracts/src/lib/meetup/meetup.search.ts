@@ -1,17 +1,23 @@
 import { MeetupCreate } from '@app/contracts';
-import { PartialType } from '@nestjs/mapped-types';
-
-import { IsString } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 
 export namespace MeetupSearch {
-  export const findAllMeetupsTopic = 'meetup.findAllMeetupsTopic.command';
-  export const findAllMeetupsElasticTopic =
+  export const FindAllMeetupsTopic = 'meetup.findAllMeetupsTopic.command';
+  export const FindAllMeetupsElasticTopic =
     'meetup.findAllMeetupsElasticTopic.command';
 
-  export class MeetupSearchDto {
+  export class Request {
+    @IsNumber()
+    meetupId: number;
+
+    @IsNumber()
+    userId: number;
+  }
+
+  export class ElasticQuery {
     @IsString()
     query: string;
   }
 
-  export class Response extends PartialType(MeetupCreate.Response) {}
+  export class Response extends MeetupCreate.Response {}
 }

@@ -8,18 +8,21 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
-import { AccountLogin, AccountRegister } from '@app/contracts';
 import { GooglePayload } from '@app/interfaces';
 
 import { Response } from 'express';
+import { Observable } from 'rxjs';
 
-import { AuthService } from '../services/auth.service';
-import { GoogleAuthGuard } from '../guards/google.guard';
 import { GetGooglePayload } from '../decorators/google-payload.decorator';
-import { EmailConfirmationService } from '../services/email-confirmation.service';
+import { GoogleAuthGuard } from '../guards/google.guard';
 import { JwtAuthGuard } from '../guards/jwt.guard';
-import { ApiTags } from '@nestjs/swagger';
+import { AuthService } from '../services/auth.service';
+import { EmailConfirmationService } from '../services/email-confirmation.service';
+import { UserLoginDto } from '../dtos/auth/login-user.dto';
+import { RegisterUserDto } from '../dtos/auth/register-user.dto';
+import { RegisterResponse } from '../response/auth/register-user.response';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -43,24 +46,24 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() dto: AccountRegister.Request) {
+  async register(
+    @Body() dto: RegisterUserDto,
+  ): Promise<Observable<RegisterResponse>> {
     return this.authService.register(dto);
   }
 
-  // @ApiBody({ type: [AccountLogin.Request] })
   @Post('login')
   async login(
-    @Body() dto: AccountLogin.Request,
+    @Body() dto: UserLoginDto,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<string> {
     return this.authService.login(dto, res);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('log-out')
-  async logOut(@Res() response: Response) {
+  async logOut(@Res() response: Response): Promise<void> {
     this.authService.getCookieForLogOut(response);
-    return response.sendStatus(200);
   }
 
   @Get('confirm?')
@@ -72,9 +75,10 @@ export class AuthController {
 
   @Post('resend-confirmation-link')
   @UseGuards(JwtAuthGuard)
-  async resendConfirmationLink(@Req() request) {
+  async resendConfirmationLink(@Req() request, @Res() response: Response) {
     await this.emailConfirmationService.resendConfirmationLink(
-      request.user.user.id,
+      request.user.id,
+      response,
     );
   }
 }

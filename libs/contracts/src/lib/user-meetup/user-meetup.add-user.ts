@@ -1,7 +1,7 @@
 import { IsEmail, IsNumber } from 'class-validator';
 
-export namespace UserMeetupAddUser {
-  export const topic = 'user-meetup.add-user.command';
+export namespace UserMeetupAdd {
+  export const Topic = 'user-meetup.add-user.command';
 
   export class Request {
     @IsEmail()

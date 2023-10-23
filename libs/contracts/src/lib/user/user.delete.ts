@@ -1,7 +1,7 @@
 import { IsNumber } from 'class-validator';
 
 export namespace UserDelete {
-  export const topic = 'user.delete.command';
+  export const Topic = 'user.delete.command';
 
   export class Request {
     @IsNumber()
@@ -10,9 +10,7 @@ export namespace UserDelete {
 
   export class Response {
     id: number;
-
     email: string;
-
     displayName?: string;
   }
 }

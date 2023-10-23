@@ -4,16 +4,16 @@ import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 
 import { catchError, firstValueFrom } from 'rxjs';
+import { Response } from 'express';
 
 import { VerificationTokenPayload } from '@app/interfaces';
-import { AccountConfirmEmail, UserSearch } from '@app/contracts';
+import { AccountConfirmEmailTopic, UserSearch } from '@app/contracts';
 import EmailService from './email.service';
 import {
-  ALREADY_CONFIRMED_ERROR,
-  BAD_TOKEN_ERROR,
-  EMAIL_EXPIRED_ERROR,
   EMAIL_SUBJECT,
   EMAIL_TEXT,
+  ERROR_MESSAGES,
+  INFO_MESSAGES,
 } from '../constants/email.constants';
 import { handleRpcError } from '../filters/rpc.exception';
 
@@ -49,7 +49,7 @@ export class EmailConfirmationService {
 
   public async confirmEmail(email: string) {
     return this.client
-      .send({ cmd: AccountConfirmEmail.topic }, email)
+      .send({ cmd: AccountConfirmEmailTopic }, email)
       .pipe(catchError(handleRpcError));
   }
 
@@ -65,23 +65,24 @@ export class EmailConfirmationService {
       throw new BadRequestException();
     } catch (error) {
       if (error?.name === 'TokenExpiredError') {
-        throw new BadRequestException(EMAIL_EXPIRED_ERROR);
+        throw new BadRequestException(ERROR_MESSAGES.EMAIL_EXPIRED);
       }
-      throw new BadRequestException(BAD_TOKEN_ERROR);
+      throw new BadRequestException(ERROR_MESSAGES.BAD_TOKEN);
     }
   }
 
-  public async resendConfirmationLink(userId: number) {
+  public async resendConfirmationLink(userId: number, response: Response) {
     const user = await firstValueFrom(
       this.client
-        .send({ cmd: UserSearch.findOneTopic }, userId)
+        .send({ cmd: UserSearch.OneUserTopic }, userId)
         .pipe(catchError(handleRpcError)),
     );
 
     if (user.user.isEmailConfirmed) {
-      throw new BadRequestException(ALREADY_CONFIRMED_ERROR);
+      throw new BadRequestException(ERROR_MESSAGES.ALREADY_CONFIRMED);
     }
 
     await this.sendVerificationLink(user.user.email);
+    response.json({ message: INFO_MESSAGES.EMAIL_RESEND });
   }
 }

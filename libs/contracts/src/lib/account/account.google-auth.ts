@@ -1,3 +1,1 @@
-export namespace AccountGoogleAuth {
-  export const topic = 'account.google.auth.command';
-}
+export const AccountGoogleAuthTopic = 'account.google.auth.command';

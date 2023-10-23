@@ -1,33 +1,35 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
+import { UserMeetupService } from './user-meetup.service';
 import {
-  UserMeetupAddUser,
-  UserMeetupDeleteUser,
+  UserMeetupAdd,
+  UserMeetupDelete,
   UserMeetupFindAll,
 } from '@app/contracts';
-import { UserMeetupService } from './user-meetup.service';
 
 @Controller()
 export class UserMeetupController {
   constructor(private readonly userMeetupService: UserMeetupService) {}
 
-  @MessagePattern({ cmd: UserMeetupFindAll.topic })
+  @MessagePattern({ cmd: UserMeetupFindAll.Topic })
   async findAllUserMeetups(
     @Payload() findUserMeetupsDto: UserMeetupFindAll.Request,
-  ) {
+  ): Promise<UserMeetupFindAll.Response[]> {
     return this.userMeetupService.findAllUsersMeetup(findUserMeetupsDto.email);
   }
 
-  @MessagePattern({ cmd: UserMeetupAddUser.topic })
-  async addUserToMeetup(@Payload() addUserdto: UserMeetupAddUser.Request) {
+  @MessagePattern({ cmd: UserMeetupAdd.Topic })
+  async addUserToMeetup(
+    @Payload() addUserdto: UserMeetupAdd.Request,
+  ): Promise<UserMeetupAdd.Response> {
     return this.userMeetupService.addUserToMeetup(addUserdto);
   }
 
-  @MessagePattern({ cmd: UserMeetupDeleteUser.topic })
+  @MessagePattern({ cmd: UserMeetupDelete.Topic })
   async deleteUserFromMeetup(
-    @Payload() deleteUserdto: UserMeetupDeleteUser.Request,
-  ) {
+    @Payload() deleteUserdto: UserMeetupDelete.Request,
+  ): Promise<UserMeetupDelete.Response> {
     return this.userMeetupService.deleteUserFromMeetup(deleteUserdto);
   }
 }

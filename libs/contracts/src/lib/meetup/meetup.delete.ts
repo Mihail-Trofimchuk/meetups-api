@@ -2,11 +2,14 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { IsNumber } from 'class-validator';
 
 export namespace MeetupDelete {
-  export const topic = 'meetup.delete.command';
+  export const Topic = 'meetup.delete.command';
 
   export class Request {
     @IsNumber()
-    id: number;
+    meetupId: number;
+
+    @IsNumber()
+    userId: number;
   }
 
   export class Response {

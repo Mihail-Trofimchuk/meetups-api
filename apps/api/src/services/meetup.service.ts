@@ -3,22 +3,28 @@ import { ClientProxy } from '@nestjs/microservices';
 
 import * as geolib from 'geolib';
 import { Observable, catchError, firstValueFrom } from 'rxjs';
-
 import { toNumber } from 'lodash';
 
+import { Meetup } from '@prisma/client';
 import {
   MeetupCreate,
   MeetupDelete,
   MeetupSearch,
   MeetupUpdate,
 } from '@app/contracts';
-import { Meetup } from '@prisma/client';
 import { CenterСoordinates } from '@app/interfaces';
 
 import { CONVERT_TO_KM } from '../constants/meetup.constants';
 import { MeetupFilterDto } from '../dtos/meetups-filter.dto';
 import { generatePDF } from '../utils/pdf-generator';
 import { handleRpcError } from '../filters/rpc.exception';
+import { MeetupCreateDto } from '../dtos/meetup/create-meetup.dto';
+import { CreateResponse } from '../response/meetup/create-meetup.response';
+import { MeetupUpdateDto } from '../dtos/meetup/update-meetup.dto';
+import { UpdateResponse } from '../response/meetup/update-meetup.response';
+import { DeleteResponse } from '../response/meetup/delete-meetup.response';
+import { MeetupSearchDto } from '../dtos/meetup/search-meetup.dto';
+import { SearchResponse } from '../response/meetup/search-meetup.response';
 
 function isMeetupInRadius(
   meetup: Meetup,
@@ -44,42 +50,45 @@ export class MeetupService {
   }
 
   async createMeetup(
-    createDto: MeetupCreate.MeetupRequest,
+    dto: MeetupCreateDto,
     createdById: number,
-  ): Promise<Observable<MeetupCreate.Response>> {
-    return this.sendRCPRequest(MeetupCreate.topic, { createDto, createdById });
+  ): Promise<Observable<CreateResponse>> {
+    return this.sendRCPRequest(MeetupCreate.Topic, {
+      ...dto,
+      createdById,
+    });
   }
 
-  async findAllMeetups(): Promise<Observable<MeetupSearch.Response[]>> {
-    return this.sendRCPRequest(MeetupSearch.findAllMeetupsTopic, {});
+  async findAllMeetups(): Promise<Observable<SearchResponse[]>> {
+    return this.sendRCPRequest(MeetupSearch.FindAllMeetupsTopic, {});
   }
 
   async updateMeetup(
-    id: number,
-    meetupUpdate: MeetupUpdate.Request,
+    meetupId: number,
+    updateDto: MeetupUpdateDto,
     userId: number,
-  ): Promise<Observable<MeetupUpdate.Response>> {
+  ): Promise<Observable<UpdateResponse>> {
     return this.sendRCPRequest(MeetupUpdate.topic, {
-      id,
-      meetupUpdate,
+      ...updateDto,
+      meetupId,
       userId,
     });
   }
 
   async deleteMeetup(
-    id: number,
+    meetupId: number,
     userId: number,
-  ): Promise<Observable<MeetupDelete.Response>> {
-    return this.sendRCPRequest(MeetupDelete.topic, { id, userId });
+  ): Promise<Observable<DeleteResponse>> {
+    return this.sendRCPRequest(MeetupDelete.Topic, { meetupId, userId });
   }
 
   async findMeetupsInRadius(
     filterDto: MeetupFilterDto,
-  ): Promise<Observable<MeetupSearch.Response[]>> {
+  ): Promise<Observable<SearchResponse[]>> {
     const { latitude, longitude, radius } = filterDto;
 
     const meetups = await firstValueFrom(
-      this.sendRCPRequest(MeetupSearch.findAllMeetupsTopic, {}),
+      this.sendRCPRequest(MeetupSearch.FindAllMeetupsTopic, {}),
     );
 
     if (!latitude || !longitude || !radius) {
@@ -95,17 +104,17 @@ export class MeetupService {
 
   async generarPDF(): Promise<Buffer> {
     const meetups = await firstValueFrom(
-      this.sendRCPRequest(MeetupSearch.findAllMeetupsTopic, {}),
+      this.sendRCPRequest(MeetupSearch.FindAllMeetupsTopic, {}),
     );
 
     return generatePDF(meetups);
   }
 
   async findMeetupsWithElastic(
-    searchDto: MeetupSearch.MeetupSearchDto,
-  ): Promise<Observable<MeetupSearch.Response[]>> {
+    searchDto: MeetupSearchDto,
+  ): Promise<Observable<SearchResponse[]>> {
     return this.sendRCPRequest(
-      MeetupSearch.findAllMeetupsElasticTopic,
+      MeetupSearch.FindAllMeetupsElasticTopic,
       searchDto,
     );
   }

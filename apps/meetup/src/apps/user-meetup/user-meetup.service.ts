@@ -9,15 +9,12 @@ import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
 
 import {
-  UserMeetupAddUser,
-  UserMeetupDeleteUser,
+  UserMeetupAdd,
+  UserMeetupDelete,
+  UserMeetupFindAll,
   UserSearch,
 } from '@app/contracts';
-import {
-  MEETUP_NOT_FOUND_ERROR,
-  USER_ALREADY_ADD_ERROR,
-  USER_NOT_INCLUDE_ERROR,
-} from './user-meetup.constants';
+import { ERROR_MESSAGES } from './user-meetup.constants';
 import { UserMeetupRepository } from './user-meetup.repository';
 import { MeetupService } from '../meetup/meetup.service';
 import { handleRpcError } from '../../filters/rpc.exception';
@@ -33,13 +30,15 @@ export class UserMeetupService {
   async findUserIdByEmail(email: string): Promise<number> {
     const userId = await firstValueFrom(
       this.client
-        .send({ cmd: UserSearch.findOneByEmailTopic }, email)
+        .send({ cmd: UserSearch.OneUserByEmailTopic }, email)
         .pipe(catchError(handleRpcError)),
     );
     return userId;
   }
 
-  async findAllUsersMeetup(email: string) {
+  async findAllUsersMeetup(
+    email: string,
+  ): Promise<UserMeetupFindAll.Response[]> {
     const userId = await this.findUserIdByEmail(email);
 
     const meetups = await this.userMeetupRepository.findAllUserMeetups(userId);
@@ -48,13 +47,15 @@ export class UserMeetupService {
   }
 
   async addUserToMeetup(
-    addUserdto: UserMeetupAddUser.Request,
-  ): Promise<UserMeetupAddUser.Response> {
+    addUserdto: UserMeetupAdd.Request,
+  ): Promise<UserMeetupAdd.Response> {
     const userId = await this.findUserIdByEmail(addUserdto.email);
 
     const meetup = await this.meetupService.findMeetupById(addUserdto.meetupId);
     if (!meetup) {
-      throw new RpcException(new NotFoundException(MEETUP_NOT_FOUND_ERROR));
+      throw new RpcException(
+        new NotFoundException(ERROR_MESSAGES.MEETUP_NOT_FOUND),
+      );
     }
 
     const existingUserMeetup = await this.userMeetupRepository.findUserMeetup(
@@ -63,7 +64,9 @@ export class UserMeetupService {
     );
 
     if (existingUserMeetup) {
-      throw new RpcException(new ConflictException(USER_ALREADY_ADD_ERROR));
+      throw new RpcException(
+        new ConflictException(ERROR_MESSAGES.USER_ALREADY_ADD),
+      );
     }
 
     return await this.userMeetupRepository.addUserToMeetup(
@@ -73,8 +76,8 @@ export class UserMeetupService {
   }
 
   async deleteUserFromMeetup(
-    deleteUserdto: UserMeetupDeleteUser.Request,
-  ): Promise<UserMeetupDeleteUser.Response> {
+    deleteUserdto: UserMeetupDelete.Request,
+  ): Promise<UserMeetupDelete.Response> {
     const userId = await this.findUserIdByEmail(deleteUserdto.email);
 
     const meetup = await this.meetupService.findMeetupById(
@@ -82,7 +85,9 @@ export class UserMeetupService {
     );
 
     if (!meetup) {
-      throw new RpcException(new NotFoundException(MEETUP_NOT_FOUND_ERROR));
+      throw new RpcException(
+        new NotFoundException(ERROR_MESSAGES.MEETUP_NOT_FOUND),
+      );
     }
     const existingUserMeetup = await this.userMeetupRepository.findUserMeetup(
       deleteUserdto.meetupId,
@@ -90,7 +95,9 @@ export class UserMeetupService {
     );
 
     if (!existingUserMeetup) {
-      throw new RpcException(new NotFoundException(USER_NOT_INCLUDE_ERROR));
+      throw new RpcException(
+        new NotFoundException(ERROR_MESSAGES.USER_NOT_INCLUDE),
+      );
     }
 
     return this.userMeetupRepository.deleteUserFromMeetup(

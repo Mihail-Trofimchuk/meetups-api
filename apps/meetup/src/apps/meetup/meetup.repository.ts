@@ -13,13 +13,11 @@ export class MeetupRepository {
   constructor(private readonly dbService: DbService) {}
 
   public async create(
-    createDto: MeetupCreate.MeetupRequest,
-    createdById: number,
+    createContract: MeetupCreate.Request,
   ): Promise<MeetupCreate.Response> {
     return await this.dbService.meetup.create({
       data: {
-        ...createDto,
-        createdById: createdById,
+        ...createContract,
       },
     });
   }
@@ -39,11 +37,11 @@ export class MeetupRepository {
   }
 
   public async update(
-    id: number,
+    meetupId: number,
     updateDto: MeetupUpdate.Request,
   ): Promise<MeetupUpdate.Response> {
     return await this.dbService.meetup.update({
-      where: { id },
+      where: { id: meetupId },
       data: updateDto,
     });
   }
