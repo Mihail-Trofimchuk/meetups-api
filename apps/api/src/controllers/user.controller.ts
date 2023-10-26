@@ -32,7 +32,7 @@ import { DeleteAvatarResponse } from '../response/user/delete-avatar.response';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @UseGuards(RoleGuard(Role.ADMIN))
+  @UseGuards(RoleGuard(Role.ADMIN))
   @Delete(':id')
   async deleteUser(
     @Param('id', ParseIntPipe) id: number,
@@ -40,7 +40,7 @@ export class UserController {
     return this.userService.deleteUser(id);
   }
 
-  // @UseGuards(RoleGuard(Role.ADMIN, Role.ORGANIZER))
+  @UseGuards(RoleGuard(Role.ADMIN, Role.ORGANIZER))
   @Get(':id')
   async findUserById(@Param('id', ParseIntPipe) id: number): Promise<User> {
     return this.userService.findById(id);
@@ -59,7 +59,7 @@ export class UserController {
     return this.userService.findAllUsers();
   }
 
-  // @UseGuards(RoleGuard(Role.ADMIN))
+  @UseGuards(RoleGuard(Role.ADMIN))
   @Post('create-organizer')
   async createOrganizer(
     @Body() createOrganizerDto: UserCreateOrganizerDto,

@@ -11,6 +11,7 @@ import { MeetupsSearchModule } from './apps/meetups-search/meetups-search.module
 import { UserMeetupModule } from './apps/user-meetup/user-meetup.module';
 import { UserMeetupRepository } from './apps/user-meetup/user-meetup.repository';
 import { UserMeetupService } from './apps/user-meetup/user-meetup.service';
+import { TagModule } from './apps/tag/tag.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UserMeetupService } from './apps/user-meetup/user-meetup.service';
         },
       },
     ]),
+    TagModule,
   ],
   controllers: [MeetupController],
   providers: [

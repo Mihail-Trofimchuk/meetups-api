@@ -86,7 +86,7 @@ export class MeetupController {
     return this.meetupService.findMeetupsInRadius(filterDto);
   }
 
-  //@UseGuards(RoleGuard(Role.ORGANIZER, Role.ADMIN))
+  @UseGuards(RoleGuard(Role.ORGANIZER, Role.ADMIN))
   @Get('pdf')
   @Header('Content-Type', 'application/pdf')
   @Header('Content-Disposition', 'attachment; filename="meetups.pdf"')
@@ -97,6 +97,7 @@ export class MeetupController {
     res.send(buffer);
   }
 
+  @UseGuards(RoleGuard(Role.ORGANIZER, Role.ADMIN, Role.PARTICIPANT))
   @ApiQuery({
     name: 'searchDto',
     required: false,

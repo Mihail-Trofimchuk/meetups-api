@@ -3,10 +3,10 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { DbModule } from '@app/db';
 
-import { getJWTConfig } from '../../config/jwt.config';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
 import { UserModule } from '../user/user.module';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { getJWTConfig } from '../../config/jwt.config';
 
 @Module({
   imports: [DbModule, UserModule, JwtModule.registerAsync(getJWTConfig())],

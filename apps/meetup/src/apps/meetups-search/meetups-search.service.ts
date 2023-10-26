@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 
+import { MeetupSearch } from '@app/contracts';
+import { DOCUMENT_NOT_FOUND, SUCCESS_UPLOAD } from './meetup-search.constants';
+
 @Injectable()
 export class MeetupsSearchService {
   constructor(
@@ -27,6 +30,17 @@ export class MeetupsSearchService {
                   type: 'text',
                   analyzer: 'case_insensitive_analyzer',
                 },
+                tags: {
+                  type: Object,
+                  properties: {
+                    id: { type: 'integer' },
+                    name: { type: 'text' },
+                  },
+                },
+                meetingTime: { type: 'date' },
+                latitude: { type: 'float' },
+                longitude: { type: 'float' },
+                createdById: { type: 'integer' },
               },
             },
           },
@@ -41,10 +55,43 @@ export class MeetupsSearchService {
   }
 
   async indexMeetup(meetup: any) {
-    return await this.esService.index({
+    return await this.esService
+      .index({
+        index: this.configService.get('ELASTICSEARCH_INDEX'),
+        body: meetup,
+      })
+      .then(
+        function (resp) {
+          console.log(SUCCESS_UPLOAD, resp);
+        },
+        function (err) {
+          console.trace(err.message);
+        },
+      );
+  }
+
+  async updateIndexMeetup(meetup: MeetupSearch.Response) {
+    const { body } = await this.esService.search({
       index: this.configService.get('ELASTICSEARCH_INDEX'),
-      body: meetup,
+      body: {
+        query: {
+          match: { id: meetup.id },
+        },
+      },
     });
+    if (body.hits.hits.length > 0) {
+      const docId = body.hits.hits[0]._id;
+
+      return await this.esService.update({
+        index: this.configService.get('ELASTICSEARCH_INDEX'),
+        id: docId,
+        body: {
+          doc: meetup,
+        },
+      });
+    } else {
+      console.log(DOCUMENT_NOT_FOUND);
+    }
   }
 
   async search(text: string) {

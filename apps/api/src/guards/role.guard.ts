@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, mixin, Type } from '@nestjs/common';
-import { JwtAuthGuard } from './jwt.guard';
+
 import { Role } from '@prisma/client';
+import { JwtAuthGuard } from './jwt.guard';
 
 const RoleGuard = (...roles: Role[]): Type<CanActivate> => {
   class RoleGuardMixin extends JwtAuthGuard {

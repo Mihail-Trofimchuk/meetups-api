@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
@@ -8,7 +9,6 @@ import * as passport from 'passport';
 
 import { ApiModule } from './api.module';
 import { RpcExceptionToHttpExceptionFilter } from './filters/rpc.exception';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule);

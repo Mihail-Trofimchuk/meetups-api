@@ -17,12 +17,12 @@ export class UserRepository {
   async create(
     { displayName, email }: AccountRegister.Request,
     passwordHash: string,
-  ) {
+  ): Promise<User> {
     return await this.dbService.user.create({
       data: {
         displayName,
         email,
-        passwordHash: passwordHash,
+        passwordHash,
       },
     });
   }
@@ -65,6 +65,27 @@ export class UserRepository {
       where: { email },
       data: {
         isEmailConfirmed: true,
+      },
+    });
+  }
+
+  async setCurrentRefreshToken(
+    userId: number,
+    currentHashedRefreshToken: string,
+  ) {
+    return await this.dbService.user.update({
+      where: { id: userId },
+      data: {
+        currentHashedRefreshToken,
+      },
+    });
+  }
+
+  async clearCurrentHashedRefreshToken(userId: number) {
+    return await this.dbService.user.update({
+      where: { id: userId },
+      data: {
+        currentHashedRefreshToken: null,
       },
     });
   }

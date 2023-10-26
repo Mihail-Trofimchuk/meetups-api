@@ -1,3 +1,4 @@
+import { MeetupsTagsResponse } from '@app/contracts';
 import { Decimal } from '@prisma/client/runtime/library';
 
 export class CreateResponse {
@@ -7,7 +8,7 @@ export class CreateResponse {
 
   description: string;
 
-  tags: string[];
+  tags: MeetupsTagsResponse[];
 
   meetingTime: Date;
 

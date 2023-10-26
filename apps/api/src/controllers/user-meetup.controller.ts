@@ -6,11 +6,14 @@ import {
   Header,
   Post,
   StreamableFile,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { Observable } from 'rxjs';
 
+import { Role } from '@prisma/client';
+import RoleGuard from '../guards/role.guard';
 import { UserMeetupService } from '../services/user-meetup.service';
 import { UserMeetupAddDto } from '../dtos/user-meetup/add-user-meetup.dto';
 import { UserMeetupDeleteDto } from '../dtos/user-meetup/delete-user-meetup.dto';
@@ -34,6 +37,7 @@ export class UserMeetupController {
     return new StreamableFile(output);
   }
 
+  @UseGuards(RoleGuard(Role.ADMIN, Role.ORGANIZER))
   @Get('meetups')
   async findAllUserMeetups(
     @Body() findUserMeetupsDto: UserMeetupFindAllDto,
@@ -41,6 +45,7 @@ export class UserMeetupController {
     return this.userMeetupService.findAllUserMeetups(findUserMeetupsDto);
   }
 
+  @UseGuards(RoleGuard(Role.ORGANIZER))
   @Post()
   async addUserToMeetup(
     @Body() addUserDto: UserMeetupAddDto,
@@ -48,6 +53,7 @@ export class UserMeetupController {
     return this.userMeetupService.addUserToMeetup(addUserDto);
   }
 
+  @UseGuards(RoleGuard(Role.ORGANIZER))
   @Delete()
   async deleteUserFromMeetup(
     @Body() deleteUserDto: UserMeetupDeleteDto,

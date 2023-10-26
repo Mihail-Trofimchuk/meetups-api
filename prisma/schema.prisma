@@ -3,12 +3,15 @@
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x","linux-musl", "linux-musl-openssl-3.0.x"]
 }
+
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 
 model UserMeetup {
   user     User   @relation("Participants", fields: [userId], references: [id], onDelete: Cascade)
@@ -32,19 +35,22 @@ model UserMeetup {
 // }
 
 model User {
-  id                Int          @id @default(autoincrement())
-  email             String       @unique
-  displayName       String?      @map("display_name")
-  passwordHash      String?      @map("password_hash")
-  role              Role         @default(PARTICIPANT)
+  id           Int     @id @default(autoincrement())
+  email        String  @unique
+  displayName  String? @map("display_name")
+  passwordHash String? @map("password_hash")
+  role         Role    @default(PARTICIPANT)
+
+  avatarGoogleCloud         String?      @map("avatar_google_cloud")
+  isEmailConfirmed          Boolean      @default(false) @map("is_email_confirmed")
+  meetup                    UserMeetup[] @relation("Participants")
+  organizedMeetings         Meetup[]     @relation("Organizer")
+  currentHashedRefreshToken String?      @map("current_hashed_refresh_token")
+
   // Only local storage use
   // avatar            LocalFile?   @relation(fields: [avatarId], references: [id], onDelete: Cascade)
   // avatarId          Int?         @unique @map("avatar_id")
   //
-  avatarGoogleCloud String?      @map("avatar_google_cloud")
-  isEmailConfirmed  Boolean      @default(false) @map("is_email_confirmed")
-  meetup            UserMeetup[] @relation("Participants")
-  organizedMeetings Meetup[]     @relation("Organizer")
 
   @@map("user")
 }
@@ -53,7 +59,7 @@ model Meetup {
   id           Int          @id @default(autoincrement())
   title        String       @unique
   description  String
-  tags         String[]
+  tags         MeetupTag[]
   meetingTime  DateTime     @map("meeting_time")
   latitude     Decimal
   longitude    Decimal
@@ -62,6 +68,24 @@ model Meetup {
   createdById  Int?         @map("created_by_id")
 
   @@map("meetup")
+}
+
+model Tag {
+  id      Int         @id @default(autoincrement())
+  name    String      @unique
+  meetups MeetupTag[]
+
+  @@map("tag")
+}
+
+model MeetupTag {
+  meetup   Meetup @relation(fields: [meetupId], references: [id], onDelete: Cascade)
+  meetupId Int    @map("meetup_id")
+  tag      Tag    @relation(fields: [tagId], references: [id])
+  tagId    Int    @map("tag_id")
+
+  @@id([meetupId, tagId])
+  @@map("meetup_tag")
 }
 
 enum Role {

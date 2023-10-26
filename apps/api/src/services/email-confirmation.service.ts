@@ -78,11 +78,11 @@ export class EmailConfirmationService {
         .pipe(catchError(handleRpcError)),
     );
 
-    if (user.user.isEmailConfirmed) {
+    if (user.isEmailConfirmed) {
       throw new BadRequestException(ERROR_MESSAGES.ALREADY_CONFIRMED);
     }
 
-    await this.sendVerificationLink(user.user.email);
+    await this.sendVerificationLink(user.email);
     response.json({ message: INFO_MESSAGES.EMAIL_RESEND });
   }
 }

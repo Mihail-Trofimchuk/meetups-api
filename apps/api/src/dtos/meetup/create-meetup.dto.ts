@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 import { Decimal } from '@prisma/client/runtime/library';
+import { MeetupTags } from '@app/contracts';
 import {
   IsArray,
   IsDate,
@@ -13,6 +14,7 @@ import {
   MaxLength,
   Min,
   MinDate,
+  ValidateNested,
 } from 'class-validator';
 
 export class MeetupCreateDto {
@@ -28,9 +30,11 @@ export class MeetupCreateDto {
   @IsNotEmpty()
   description: string;
 
-  @ApiProperty({ type: [String] })
+  @ApiProperty()
   @IsArray()
-  tags: string[];
+  @ValidateNested({ each: true })
+  @Type(() => MeetupTags)
+  tags: MeetupTags[];
 
   @ApiProperty()
   @IsDate()

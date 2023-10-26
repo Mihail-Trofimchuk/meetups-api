@@ -14,6 +14,25 @@ import {
   Min,
   MinDate,
 } from 'class-validator';
+import { MeetupTag, Tag } from '@prisma/client';
+import { ApiProperty } from '@nestjs/swagger';
+
+type TagsType = Omit<MeetupTag, 'meetupId'>;
+
+export class MeetupTags implements TagsType {
+  @ApiProperty()
+  @IsNumber()
+  tagId: number;
+}
+
+export class MeetupsTagsResponse {
+  tag: TagsResponse;
+}
+
+export class TagsResponse implements Tag {
+  id: number;
+  name: string;
+}
 
 export namespace MeetupCreate {
   export const Topic = 'meetup.create.command';
@@ -30,7 +49,7 @@ export namespace MeetupCreate {
     description: string;
 
     @IsArray()
-    tags: string[];
+    tags: MeetupTags[];
 
     @IsDate()
     @IsNotEmpty()
@@ -64,7 +83,7 @@ export namespace MeetupCreate {
 
     description: string;
 
-    tags: string[];
+    tags: MeetupsTagsResponse[];
 
     meetingTime: Date;
 

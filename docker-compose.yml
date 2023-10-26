@@ -1,0 +1,146 @@
+version: '3.8'
+services:
+  meetup:
+    build:
+      context: .
+      dockerfile: ./apps/meetup/Dockerfile
+    command: npm run start:prod:meetup
+    depends_on: 
+      - db
+      - rmq
+      - es01-meetup
+      - es02-meetup
+      - es03-meetup
+      - kibana
+    networks:
+      - meetup  
+
+  account:
+    build:
+      context: .
+      dockerfile: ./apps/account/Dockerfile
+    command: npm run start:prod:account 
+    depends_on: 
+      - db
+      - rmq
+    environment:
+      DATABASE_URL: postgres://root:root@db:5432/ModsenSecondTask
+    networks:
+      - meetup   
+
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    command: npm run start:prod:account
+    depends_on: 
+      - db
+      - rmq
+    ports: 
+      - "8080:3001"  
+    networks:
+      - meetup       
+
+  db:
+    container_name: meetup_pg_container
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: ModsenSecondTask
+    ports:
+      - "5432:5432"
+    networks:
+      - meetup   
+
+  rmq:
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    networks:
+      - meetup   
+
+  es01-meetup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.1
+    container_name: es01-meetup
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - meetup
+
+  es02-meetup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.1
+    container_name: es02-meetup
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data02:/usr/share/elasticsearch/data
+    networks:
+      - meetup
+
+  es03-meetup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.1
+    container_name: es03-meetup
+    environment:
+      - node.name=es03
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data03:/usr/share/elasticsearch/data
+    networks:
+      - meetup
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.9.1
+    container_name: kibana
+    environment:
+      SERVER_HOST: "0.0.0.0"
+      ELASTICSEARCH_HOSTS: "http://es01:9200"
+    ports:
+      - "5601:5601"
+    networks:
+      - meetup
+
+volumes:
+  data01:
+    driver: local
+  data02:
+    driver: local
+  data03:
+    driver: local
+
+networks:
+  meetup:
+    driver: bridge

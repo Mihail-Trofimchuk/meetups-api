@@ -11,15 +11,17 @@ import { UserMeetupRepository } from './user-meetup.repository';
 import { MeetupService } from '../meetup/meetup.service';
 import { MeetupRepository } from '../meetup/meetup.repository';
 import { MeetupsSearchService } from '../meetups-search/meetups-search.service';
+import { TagModule } from '../tag/tag.module';
 
 @Module({
   imports: [
+    TagModule,
     ClientsModule.register([
       {
         name: 'ACCOUNT_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:5672'],
+          urls: ['amqp://rmq:5672'],
           queue: 'account_queue',
           queueOptions: {
             durable: false,

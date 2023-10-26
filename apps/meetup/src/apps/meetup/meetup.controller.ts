@@ -45,7 +45,7 @@ export class MeetupController {
   @MessagePattern({ cmd: MeetupSearch.FindAllMeetupsElasticTopic })
   async findAllMeetupsElastic(
     @Payload() searchContract: MeetupSearch.ElasticQuery,
-  ) {
+  ): Promise<MeetupSearch.Response> {
     return this.meetupService.findAllMeetupsElastic(searchContract);
   }
 }

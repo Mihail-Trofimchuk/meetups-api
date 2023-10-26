@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
+import { User } from '@prisma/client';
 import {
   UserCreateOrganizer,
   UserDelete,
@@ -10,7 +11,6 @@ import {
   UserUpdate,
   UserUploadGCPFileTopic,
 } from '@app/contracts';
-import { User } from '@prisma/client';
 
 import { UserService } from './user.service';
 
@@ -57,7 +57,6 @@ export class UserController {
   async addAvatarGoogle(
     @Payload() { fileName, userId }: { fileName: string; userId: number },
   ) {
-    console.log(fileName, userId);
     return await this.userService.addAvatarGoogle(fileName, userId);
   }
 

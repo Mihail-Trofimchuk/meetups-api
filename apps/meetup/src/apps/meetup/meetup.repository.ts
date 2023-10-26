@@ -4,6 +4,7 @@ import {
   MeetupCreate,
   MeetupDelete,
   MeetupSearch,
+  MeetupTags,
   MeetupUpdate,
 } from '@app/contracts';
 import { DbService } from '@app/db';
@@ -12,41 +13,86 @@ import { DbService } from '@app/db';
 export class MeetupRepository {
   constructor(private readonly dbService: DbService) {}
 
+  private meetupfullSelect = {
+    id: true,
+    title: true,
+    description: true,
+    tags: {
+      select: {
+        tag: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    },
+    meetingTime: true,
+    latitude: true,
+    longitude: true,
+    participants: true,
+    createdById: true,
+  };
+
   public async create(
     createContract: MeetupCreate.Request,
   ): Promise<MeetupCreate.Response> {
+    const { tags, ...rest } = createContract;
     return await this.dbService.meetup.create({
       data: {
-        ...createContract,
+        tags: { createMany: { data: tags } },
+        ...rest,
       },
+      select: this.meetupfullSelect,
     });
   }
 
   public async findAll(): Promise<MeetupSearch.Response[]> {
-    return await this.dbService.meetup.findMany();
+    return await this.dbService.meetup.findMany({
+      select: this.meetupfullSelect,
+    });
   }
 
   public async findMeetupByTitle(
     title: string,
   ): Promise<MeetupSearch.Response> {
-    return await this.dbService.meetup.findFirst({ where: { title } });
+    return await this.dbService.meetup.findFirst({
+      where: { title },
+      select: this.meetupfullSelect,
+    });
   }
 
   public async findMeetupById(id: number): Promise<MeetupSearch.Response> {
-    return await this.dbService.meetup.findFirst({ where: { id } });
+    return await this.dbService.meetup.findFirst({
+      where: { id },
+      select: this.meetupfullSelect,
+    });
   }
 
   public async update(
     meetupId: number,
-    updateDto: MeetupUpdate.Request,
+    updateDto,
+    tag: MeetupTags[],
   ): Promise<MeetupUpdate.Response> {
+    delete updateDto.tags;
+    delete updateDto.participants;
+    const { ...rest } = updateDto;
+
+    await this.dbService.meetupTag.deleteMany({
+      where: { meetupId: meetupId },
+    });
+
     return await this.dbService.meetup.update({
       where: { id: meetupId },
-      data: updateDto,
+      data: { tags: { createMany: { data: tag } }, ...rest },
+      select: this.meetupfullSelect,
     });
   }
 
   public async remove(id: number): Promise<MeetupDelete.Response> {
-    return await this.dbService.meetup.delete({ where: { id } });
+    return await this.dbService.meetup.delete({
+      where: { id },
+      select: this.meetupfullSelect,
+    });
   }
 }

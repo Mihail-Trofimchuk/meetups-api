@@ -19,6 +19,9 @@ import { GoogleAuthStrategy } from './strategy/google.strategy';
 import { JwtAuthStrategy } from './strategy/jwt.strategy';
 import { GoogleCloudService } from './utils/google-cloud';
 import { SessionSerializer } from './utils/serializer';
+import { JwtRefreshTokenStrategy } from './strategy/refresh.strategy';
+import { TagController } from './controllers/tag.controller';
+import { TagService } from './services/tag.service';
 
 @Module({
   imports: [
@@ -63,6 +66,7 @@ import { SessionSerializer } from './utils/serializer';
     MeetupController,
     UserController,
     UserMeetupController,
+    TagController,
   ],
   providers: [
     GoogleCloudService,
@@ -73,8 +77,10 @@ import { SessionSerializer } from './utils/serializer';
     UserService,
     JwtAuthStrategy,
     GoogleAuthStrategy,
+    JwtRefreshTokenStrategy,
     SessionSerializer,
     UserMeetupService,
+    TagService,
   ],
 })
 export class ApiModule {}
