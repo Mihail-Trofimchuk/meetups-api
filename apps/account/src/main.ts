@@ -11,7 +11,7 @@ async function bootstrap() {
     {
       transport: Transport.RMQ,
       options: {
-        urls: ['amqp://localhost:5672'],
+        urls: ['amqp://rmq:5672'],
         queue: 'account_queue',
         queueOptions: {
           durable: false,
@@ -21,7 +21,7 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new ExceptionFilter());
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen();
+  await app.init();
 }
 
 bootstrap();

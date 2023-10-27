@@ -12,6 +12,11 @@ services:
       - es02-meetup
       - es03-meetup
       - kibana
+    environment:
+      DATABASE_URL: postgres://root:root@db:5432/ModsenSecondTask  
+    volumes:
+      - .:/app/usr/src/meetup
+      - /app/usr/src/meetup/node_modules
     networks:
       - meetup  
 
@@ -25,6 +30,9 @@ services:
       - rmq
     environment:
       DATABASE_URL: postgres://root:root@db:5432/ModsenSecondTask
+    volumes:
+      - .:/app/usr/src/account
+      - /app/usr/src/account/node_modules  
     networks:
       - meetup   
 
@@ -36,8 +44,13 @@ services:
     depends_on: 
       - db
       - rmq
+    environment:
+      DATABASE_URL: postgres://root:root@db:5432/ModsenSecondTask  
     ports: 
-      - "8080:3001"  
+      - "3001:3001"
+    volumes:
+      - .:/app/usr/src/api
+      - /app/usr/src/api/node_modules   
     networks:
       - meetup       
 
@@ -143,4 +156,4 @@ volumes:
 
 networks:
   meetup:
-    driver: bridge
+    driver:  bridge

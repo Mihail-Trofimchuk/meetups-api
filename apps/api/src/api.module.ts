@@ -41,7 +41,7 @@ import { TagService } from './services/tag.service';
         name: 'ACCOUNT_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:5672'],
+          urls: ['amqp://rmq:5672'],
           queue: 'account_queue',
           queueOptions: {
             durable: false,
@@ -52,7 +52,7 @@ import { TagService } from './services/tag.service';
         name: 'MEETUP_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:5672'],
+          urls: ['amqp://rmq:5672'],
           queue: 'meetup_queue',
           queueOptions: {
             durable: false,
