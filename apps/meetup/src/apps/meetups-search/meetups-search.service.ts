@@ -13,47 +13,63 @@ export class MeetupsSearchService {
   ) {}
 
   async createIndex() {
-    const checkIndex = await this.esService.indices.exists({
-      index: this.configService.get('ELASTICSEARCH_INDEX'),
-    });
+    const indexName = this.configService.get('ELASTICSEARCH_INDEX');
 
-    if (!checkIndex) {
-      this.esService.indices
-        .create({
-          index: this.configService.get('ELASTICSEARCH_INDEX'),
-          body: {
-            mappings: {
+    // Define the custom analyzer
+    const analyzerConfig = {
+      analysis: {
+        analyzer: {
+          case_insensitive_analyzer: {
+            type: 'custom',
+            tokenizer: 'keyword',
+            filter: ['lowercase'],
+          },
+        },
+      },
+    };
+
+    // Define the index mapping
+    const indexConfig = {
+      index: indexName,
+      body: {
+        mappings: {
+          properties: {
+            id: { type: 'integer' },
+            title: { type: 'text' },
+            description: {
+              type: 'text',
+              analyzer: 'case_insensitive_analyzer',
+            },
+            tags: {
+              type: 'object',
               properties: {
                 id: { type: 'integer' },
-                title: { type: 'text' },
-                description: {
-                  type: 'text',
-                  analyzer: 'case_insensitive_analyzer',
-                },
-                tags: {
-                  type: Object,
-                  properties: {
-                    id: { type: 'integer' },
-                    name: { type: 'text' },
-                  },
-                },
-                meetingTime: { type: 'date' },
-                latitude: { type: 'float' },
-                longitude: { type: 'float' },
-                createdById: { type: 'integer' },
+                name: { type: 'text' },
               },
             },
+            meetingTime: { type: 'date' },
+            latitude: { type: 'float' },
+            longitude: { type: 'float' },
+            createdById: { type: 'integer' },
           },
-        })
-        .then((response) => {
-          console.log(response);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+        },
+        // Include the custom analyzer configuration
+        settings: analyzerConfig,
+      },
+    };
+
+    // Check if the index exists
+    const indexExists = await this.esService.indices.exists({
+      index: indexName,
+    });
+
+    console.log(`Index exists: ${indexExists}`);
+
+    if (!indexExists) {
+      // Create the index with the specified mapping
+      await this.esService.indices.create(indexConfig);
     }
   }
-
   async indexMeetup(meetup: any) {
     return await this.esService
       .index({
@@ -71,7 +87,7 @@ export class MeetupsSearchService {
   }
 
   async updateIndexMeetup(meetup: MeetupSearch.Response) {
-    const { body } = await this.esService.search({
+    const body = await this.esService.search({
       index: this.configService.get('ELASTICSEARCH_INDEX'),
       body: {
         query: {
@@ -95,7 +111,7 @@ export class MeetupsSearchService {
   }
 
   async search(text: string) {
-    const { body } = await this.esService.search<any>({
+    const body = await this.esService.search<any>({
       index: this.configService.get('ELASTICSEARCH_INDEX'),
       body: {
         query: {

@@ -8,13 +8,19 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
     ConfigModule,
     ElasticsearchModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        node: configService.get('ELASTICSEARCH_NODE'),
-        auth: {
-          username: configService.get('ELASTICSEARCH_USERNAME'),
-          password: configService.get('ELASTICSEARCH_PASSWORD'),
-        },
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const node = configService.get('ELASTICSEARCH_NODE');
+        const username = configService.get('ELASTICSEARCH_USERNAME');
+        const password = configService.get('ELASTICSEARCH_PASSWORD');
+
+        return {
+          node,
+          auth: {
+            username,
+            password,
+          },
+        };
+      },
       inject: [ConfigService],
     }),
   ],
@@ -24,7 +30,12 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
 })
 export class MeetupsSearchModule implements OnModuleInit {
   constructor(private readonly searchService: MeetupsSearchService) {}
+
   public async onModuleInit() {
-    await this.searchService.createIndex();
+    try {
+      await this.searchService.createIndex();
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
