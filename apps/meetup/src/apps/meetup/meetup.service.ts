@@ -114,6 +114,7 @@ export class MeetupService {
   async findAllMeetupsElastic(
     searchDto: MeetupSearch.ElasticQuery,
   ): Promise<MeetupSearch.Response> {
+    //@ts-expect-error ...
     return this.meetupsSearchModule.search(searchDto.query);
   }
 

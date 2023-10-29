@@ -1,6 +1,8 @@
 FROM node:18-alpine
-WORKDIR /app
+
+WORKDIR /usr/src/app
+
 COPY package.json package-lock.json ./
 RUN npm install
 ADD . .
-RUN npm run build
+RUN npm run build api

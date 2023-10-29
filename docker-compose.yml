@@ -4,19 +4,20 @@ services:
     build:
       context: .
       dockerfile: ./apps/meetup/Dockerfile
-    command: npm run start:prod:meetup
+    command: npm run start:dev meetup
     depends_on: 
-      - db
-      - rmq
-      - es01-meetup
-      - es02-meetup
-      - es03-meetup
-      - kibana
+      db:
+        condition: service_started
+      rmq:
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy 
+      # - kibana
     environment:
       DATABASE_URL: postgres://root:root@db:5432/ModsenSecondTask  
     volumes:
-      - .:/app/usr/src/meetup
-      - /app/usr/src/meetup/node_modules
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     networks:
       - meetup  
 
@@ -24,15 +25,15 @@ services:
     build:
       context: .
       dockerfile: ./apps/account/Dockerfile
-    command: npm run start:prod:account 
+    command: npm run start:dev account
     depends_on: 
       - db
       - rmq
     environment:
       DATABASE_URL: postgres://root:root@db:5432/ModsenSecondTask
     volumes:
-      - .:/app/usr/src/account
-      - /app/usr/src/account/node_modules  
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     networks:
       - meetup   
 
@@ -40,7 +41,7 @@ services:
     build:
       context: .
       dockerfile: ./apps/api/Dockerfile
-    command: npm run start:prod:account
+    command: npm run start:dev api
     depends_on: 
       - db
       - rmq
@@ -49,8 +50,8 @@ services:
     ports: 
       - "3001:3001"
     volumes:
-      - .:/app/usr/src/api
-      - /app/usr/src/api/node_modules   
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     networks:
       - meetup       
 
@@ -76,71 +77,33 @@ services:
     networks:
       - meetup   
 
-  es01-meetup:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.1
-    container_name: es01-meetup
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.2
     environment:
-      - node.name=es01
-      - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es02,es03
-      - cluster.initial_master_nodes=es01,es02,es03
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      discovery.type: single-node
+      xpack.security.enabled: false
     volumes:
+      - ./docker/elk-config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
       - data01:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-    networks:
-      - meetup
-
-  es02-meetup:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.1
-    container_name: es02-meetup
-    environment:
-      - node.name=es02
-      - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es01,es03
-      - cluster.initial_master_nodes=es01,es02,es03
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data02:/usr/share/elasticsearch/data
-    networks:
-      - meetup
-
-  es03-meetup:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.1
-    container_name: es03-meetup
-    environment:
-      - node.name=es03
-      - cluster.name=es-docker-cluster
-      - discovery.seed_hosts=es01,es02
-      - cluster.initial_master_nodes=es01,es02,es03
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data03:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://elasticsearch:9200 || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10   
     networks:
       - meetup
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.9.1
+    image: docker.elastic.co/kibana/kibana:8.8.2
     container_name: kibana
+    volumes:
+      - ./docker/elk-config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
     environment:
       SERVER_HOST: "0.0.0.0"
-      ELASTICSEARCH_HOSTS: "http://es01:9200"
+      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
     ports:
       - "5601:5601"
     networks:
